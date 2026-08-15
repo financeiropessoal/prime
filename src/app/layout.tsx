@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chaveiro Auto - Loja & ERP",
-  description: "Sistema integrado de e-commerce e ERP para peças e acessórios automotivos",
+  title: "Prime Chaves Codificadas",
+  description: "Distribuidora de chaves canivete, capas de controle e baterias automotivas no atacado.",
 };
 
 export default function RootLayout({
