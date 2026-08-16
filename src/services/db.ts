@@ -55,12 +55,44 @@ export const dbService = {
         .from('products')
         .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility, images')
         .order('name', { ascending: true });
-      if (error) throw error;
+      if (error) {
+        // Fallback: retry without images column if column doesn't exist yet
+        const { data: data2, error: err2 } = await supabase
+          .from('products')
+          .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility')
+          .order('name', { ascending: true });
+        if (err2) throw err2;
+        return (data2 || []).map(p => ({ ...p, images: [] }));
+      }
       return (data || []).map(p => ({ ...p, images: (p as any).images || [] }));
     }
     await delay();
     return mockDb.getProducts().sort((a, b) => a.name.localeCompare(b.name));
   },
+
+  async getProductById(id: string): Promise<Product | null> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility, images')
+        .eq('id', id)
+        .single();
+      if (error) {
+        // Fallback without images column
+        const { data: data2, error: err2 } = await supabase
+          .from('products')
+          .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility')
+          .eq('id', id)
+          .single();
+        if (err2) return null;
+        return data2 ? { ...data2, images: [] } : null;
+      }
+      return data ? { ...data, images: (data as any).images || [] } : null;
+    }
+    await delay();
+    return mockDb.getProducts().find(p => p.id === id) || null;
+  },
+
 
   async getProductImages(id: string): Promise<string[]> {
     if (isSupabaseConfigured && supabase) {

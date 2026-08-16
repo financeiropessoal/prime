@@ -54,8 +54,7 @@ export default function ProdutoDetalhePage() {
     async function loadProduct() {
       if (!id) return;
       try {
-        const data = await dbService.getProducts();
-        const found = data.find(p => p.id === id);
+        const found = await dbService.getProductById(id as string);
         if (found) {
           setProduct(found);
         } else {
