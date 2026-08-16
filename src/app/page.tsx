@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/toast';
 import { useCart } from '@/contexts/cart-context';
 import CartDrawer from '@/components/cart-drawer';
+import { LazyProductImage } from '@/components/ui/lazy-product-image';
 import {
   Search,
   ShoppingCart,
@@ -41,13 +42,6 @@ export default function StoreHomePageV3() {
   const { cartCount, addToCart } = useCart();
 
   useEffect(() => {
-    // Debug toast to inspect environment variables on the deployed site
-    toast.add({
-      title: "Conexão Supabase",
-      description: `Configurado: ${String(require('@/lib/supabase').isSupabaseConfigured)} | URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL || 'Vazio'}`,
-      type: "info",
-    });
-
     async function loadData() {
       try {
         const prodsData = await dbService.getProducts();
@@ -374,10 +368,10 @@ export default function StoreHomePageV3() {
                       style={{ borderColor: '#f0eae1' }}
                     >
 
-                      <img
-                        src={product.images[0] || '/prod_onix.jpg'}
-                        alt={product.name}
-                        loading="lazy"
+                      <LazyProductImage
+                        productId={product.id}
+                        productName={product.name}
+                        defaultImage="/prod_onix.jpg"
                         className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       />
                     </Link>

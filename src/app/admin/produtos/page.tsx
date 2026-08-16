@@ -5,6 +5,7 @@ import { dbService } from '@/services/db';
 import { Product, Supplier, StockMovement } from '@/lib/database.types';
 import { formatCurrency } from '@/lib/formatters';
 import { toast } from '@/components/ui/toast';
+import { LazyProductImage } from '@/components/ui/lazy-product-image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -511,9 +512,10 @@ export default function ProdutosAdminPage() {
               >
                 {/* Image and Header */}
                 <div className="relative bg-stone-50 border-b p-4 flex items-center justify-center h-44" style={{ borderColor: '#f0eae1' }}>
-                  <img
-                    src={p.images?.[0] || 'https://images.unsplash.com/photo-1617400301413-5858dc44f434?w=200'}
-                    alt={p.name}
+                  <LazyProductImage
+                    productId={p.id}
+                    productName={p.name}
+                    defaultImage="https://images.unsplash.com/photo-1617400301413-5858dc44f434?w=200"
                     className="object-contain max-h-full max-w-full"
                   />
                   {/* Stock Badge */}

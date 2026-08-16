@@ -53,13 +53,28 @@ export const dbService = {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility')
         .order('name', { ascending: true });
       if (error) throw error;
-      return data || [];
+      return (data || []).map(p => ({ ...p, images: [] }));
     }
     await delay();
     return mockDb.getProducts().sort((a, b) => a.name.localeCompare(b.name));
+  },
+
+  async getProductImages(id: string): Promise<string[]> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('images')
+        .eq('id', id)
+        .single();
+      if (error) return [];
+      return data?.images || [];
+    }
+    await delay();
+    const prod = mockDb.getProducts().find(p => p.id === id);
+    return prod?.images || [];
   },
 
   async createProduct(data: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> {

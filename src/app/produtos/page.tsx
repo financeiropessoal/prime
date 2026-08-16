@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/toast';
 import { useCart } from '@/contexts/cart-context';
 import CartDrawer from '@/components/cart-drawer';
+import { LazyProductImage } from '@/components/ui/lazy-product-image';
 import {
   Search,
   ShoppingCart,
@@ -274,18 +275,12 @@ export default function ProductsCatalogPage() {
                     >
                       {/* Image & Badges */}
                       <div className="relative aspect-square bg-stone-50 flex items-center justify-center p-4 border-b overflow-hidden group-hover:opacity-95" style={{ borderColor: '#f0eae1' }}>
-                        {product.images && product.images[0] ? (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="object-contain h-full w-full max-h-48 max-w-48 transition duration-300 hover:scale-105"
-                          />
-                        ) : (
-                          <div className="text-center space-y-1 text-stone-400">
-                            <Tag className="h-10 w-10 mx-auto opacity-40" />
-                            <span className="text-[10px] block font-mono">Sem Foto</span>
-                          </div>
-                        )}
+                        <LazyProductImage
+                          productId={product.id}
+                          productName={product.name}
+                          defaultImage="/logo.png"
+                          className="object-contain h-full w-full max-h-48 max-w-48 transition duration-300 hover:scale-105"
+                        />
 
                         {/* Discount Tag */}
                         {hasPackage && (
