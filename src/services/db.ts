@@ -53,10 +53,10 @@ export const dbService = {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility')
+        .select('id, name, sku, barcode, category, brand, description, cost_price, sale_price, package_qty, package_discount_pct, stock_current, stock_minimum, status, created_at, updated_at, supplier_id, vehicle_compatibility, images')
         .order('name', { ascending: true });
       if (error) throw error;
-      return (data || []).map(p => ({ ...p, images: [] }));
+      return (data || []).map(p => ({ ...p, images: (p as any).images || [] }));
     }
     await delay();
     return mockDb.getProducts().sort((a, b) => a.name.localeCompare(b.name));
