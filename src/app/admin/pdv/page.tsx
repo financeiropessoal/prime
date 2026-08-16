@@ -467,29 +467,28 @@ export default function PdvPage() {
                 </div>
               ) : null}
 
-              {/* Price Details - Editable Input with Quick Discount Buttons */}
-              <div className="space-y-2">
-                <span className="font-bold text-xs uppercase text-stone-600">PREÇO UNITÁRIO DE VENDA</span>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-500 font-black text-base">R$</span>
-                  <Input
+              {/* Price Details - Clean inline editable row aligned like the total */}
+              <div className="pt-2.5 flex justify-between items-center border-t border-stone-200">
+                <span className="font-bold text-xs sm:text-sm uppercase text-stone-700">PREÇO UNITÁRIO DE VENDA:</span>
+                <div className="flex items-center gap-1 font-mono font-black text-xl sm:text-2xl text-stone-900">
+                  <span>R$</span>
+                  <input
                     type="number"
                     step="0.01"
                     min="0"
                     value={modalPrice === 0 ? '' : modalPrice}
                     onChange={e => setModalPrice(parseFloat(e.target.value) || 0)}
-                    className="pl-10 h-14 text-base sm:text-lg font-mono font-black text-stone-900 rounded-xl border-stone-300"
+                    className="w-24 text-right bg-transparent border-b border-dashed border-stone-400 focus:border-[#c9a96e] focus:outline-hidden font-mono font-black text-xl sm:text-2xl text-stone-900 cursor-text"
                   />
                 </div>
-
-
-                {modalMode === 'package' && (
-                  <div className="flex justify-between items-center text-stone-500 text-[10px] px-1 pt-1 font-medium">
-                    <span>Itens por Pacote:</span>
-                    <span className="font-bold">{productModal.package_qty || 10} unidades</span>
-                  </div>
-                )}
               </div>
+
+              {modalMode === 'package' && (
+                <div className="flex justify-between items-center text-stone-500 text-xs px-1 font-medium">
+                  <span>Itens por Pacote:</span>
+                  <span className="font-bold">{productModal.package_qty || 10} unidades</span>
+                </div>
+              )}
 
               {/* Quantity Selector - Large Touch Buttons for Card Terminal */}
               <div className="space-y-1.5">
