@@ -50,7 +50,9 @@ export default function CheckoutPage() {
 
   // Steps: 1 = Identification & Shipping, 2 = Payment, 3 = Success (Confirmation)
   const [step, setStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'boleto'>('pix');
+  const [paymentMethod, setPaymentMethod] = useState<'dinheiro' | 'cartao' | 'faturada'>('dinheiro');
+  const [cardInstallment, setCardInstallment] = useState<'1x' | '2x' | '3x'>('1x');
+  const [faturadaTerm, setFaturadaTerm] = useState<'15' | '30' | '30/60' | '30/60/90'>('30');
   const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
@@ -171,10 +173,16 @@ export default function CheckoutPage() {
       clearCart();
 
       // Salva dados do pedido e abre modal de impressão
+      // Monta label de pagamento completo
+      let paymentLabel = '';
+      if (paymentMethod === 'dinheiro') paymentLabel = 'DINHEIRO - A VISTA';
+      else if (paymentMethod === 'cartao') paymentLabel = `CARTAO ${cardInstallment.toUpperCase()}${cardInstallment === '1x' ? ' - A VISTA' : ' - ' + formatCurrency(cartTotal / parseInt(cardInstallment)) + '/parcela'}`;
+      else if (paymentMethod === 'faturada') paymentLabel = `FATURADA ${faturadaTerm === '15' ? '15 DIAS' : faturadaTerm === '30' ? '30 DIAS' : faturadaTerm === '30/60' ? '30/60 DIAS' : '30/60/90 DIAS'}`;
+
       setPendingOrderData({
         orderId: newOrder.id,
         customerName: formData.name,
-        paymentMethod: paymentMethod.toUpperCase(),
+        paymentMethod: paymentLabel,
         items: cart.map(item => {
           const isPkg = item.purchaseType === 'package';
           const discPct = item.product.package_discount_pct || 10;
@@ -310,15 +318,15 @@ export default function CheckoutPage() {
               </p>
             </div>
 
-            {paymentMethod === 'pix' && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-[2px] text-left space-y-2 text-xs">
-                <span className="font-bold text-amber-900 uppercase block">PAGAMENTO VIA PIX (APROVAÇÃO IMEDIATA)</span>
-                <p className="text-stone-700 font-mono text-[11px] bg-white p-2 border border-amber-300 break-all select-all">
-                  00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-426614174000520400005303986540518.905802BR5916PRIME AUTOMOTIVE6009SAO PAULO62070503***6304E2CA
-                </p>
-                <p className="text-[10px] text-stone-500">Copie a chave Pix acima e pague no app do seu banco para liberação imediata do envio.</p>
-              </div>
-            )}
+            <div className="p-4 rounded-xl border text-left space-y-1 text-xs" style={{ backgroundColor: '#faf8f5', borderColor: '#e8e2d8' }}>
+              <span className="font-bold uppercase block text-xs" style={{ color: '#5a4633' }}>CONDIÇÃO DE PAGAMENTO</span>
+              <p className="font-extrabold text-sm" style={{ color: '#3d2b1f' }}>
+                {paymentMethod === 'dinheiro' && '💵 Dinheiro — À Vista'}
+                {paymentMethod === 'cartao' && `💳 Cartão — ${cardInstallment === '1x' ? '1x À Vista' : `${cardInstallment} de ${formatCurrency(cartTotal / parseInt(cardInstallment))}`}`}
+                {paymentMethod === 'faturada' && `📄 Faturada — ${faturadaTerm === '15' ? '15 dias' : faturadaTerm === '30' ? '30 dias' : faturadaTerm === '30/60' ? '30 / 60 dias' : '30 / 60 / 90 dias'}`}
+              </p>
+            </div>
+
 
             <div className="pt-4 border-t border-stone-200 flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/cliente">
@@ -417,62 +425,133 @@ export default function CheckoutPage() {
 
                 {step === 2 && (
                   /* STEP 2: PAYMENT SELECTION */
-                  <div className="bg-white border border-stone-300 p-6 rounded-[2px] space-y-4">
-                    <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+                  <div className="bg-white border border-stone-300 p-6 rounded-[2px] space-y-5">
+                    <div className="flex items-center justify-between border-b border-stone-200 pb-3">
                       <span className="text-xs font-black uppercase tracking-wider text-stone-900">
-                        2. SELEÇÃO DA FORMA DE PAGAMENTO TÉCNICO
+                        2. FORMA DE PAGAMENTO
                       </span>
-                      <button type="button" onClick={() => setStep(1)} className="text-xs text-[#e8590c] font-bold hover:underline uppercase">
-                        ALTERAR ENDEREÇO
+                      <button type="button" onClick={() => setStep(1)} className="text-xs font-bold hover:underline uppercase" style={{ color: '#c9a96e' }}>
+                        ← Alterar dados
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* Formas de pagamento */}
+                    <div className="grid grid-cols-3 gap-3">
+                      {/* Dinheiro */}
                       <div
-                        onClick={() => setPaymentMethod('pix')}
-                        className={`p-4 border rounded-[2px] cursor-pointer transition-all ${
-                          paymentMethod === 'pix' ? 'border-[#e8590c] bg-amber-500/5 ring-1 ring-[#e8590c]' : 'border-stone-300 bg-white'
+                        onClick={() => setPaymentMethod('dinheiro')}
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all text-center ${
+                          paymentMethod === 'dinheiro'
+                            ? 'border-[#c9a96e] bg-amber-50 ring-1 ring-[#c9a96e]'
+                            : 'border-stone-200 bg-white hover:border-stone-300'
                         }`}
                       >
-                        <QrCode className="h-6 w-6 text-[#e8590c] mb-2" />
-                        <span className="block text-xs font-bold uppercase">PIX IMEDIATO</span>
-                        <span className="text-[10px] text-emerald-700 font-bold block">APROVAÇÃO INSTANTÂNEA</span>
+                        <div className="text-2xl mb-1.5">💵</div>
+                        <span className="block text-xs font-extrabold uppercase" style={{ color: paymentMethod === 'dinheiro' ? '#5a4633' : '#374151' }}>Dinheiro</span>
+                        <span className="text-[9px] text-emerald-600 font-bold block mt-0.5">À VISTA</span>
                       </div>
 
+                      {/* Cartão */}
                       <div
-                        onClick={() => setPaymentMethod('card')}
-                        className={`p-4 border rounded-[2px] cursor-pointer transition-all ${
-                          paymentMethod === 'card' ? 'border-[#e8590c] bg-amber-500/5 ring-1 ring-[#e8590c]' : 'border-stone-300 bg-white'
+                        onClick={() => setPaymentMethod('cartao')}
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all text-center ${
+                          paymentMethod === 'cartao'
+                            ? 'border-[#c9a96e] bg-amber-50 ring-1 ring-[#c9a96e]'
+                            : 'border-stone-200 bg-white hover:border-stone-300'
                         }`}
                       >
-                        <CreditCard className="h-6 w-6 text-blue-600 mb-2" />
-                        <span className="block text-xs font-bold uppercase">CARTÃO DE CRÉDITO</span>
-                        <span className="text-[10px] text-stone-500 block">PARCELAMENTO DISPONÍVEL</span>
+                        <CreditCard className={`h-6 w-6 mx-auto mb-1.5 ${ paymentMethod === 'cartao' ? 'text-[#c9a96e]' : 'text-blue-500' }`} />
+                        <span className="block text-xs font-extrabold uppercase" style={{ color: paymentMethod === 'cartao' ? '#5a4633' : '#374151' }}>Cartão</span>
+                        <span className="text-[9px] text-stone-400 font-bold block mt-0.5">1X · 2X · 3X</span>
                       </div>
 
+                      {/* Faturada */}
                       <div
-                        onClick={() => setPaymentMethod('boleto')}
-                        className={`p-4 border rounded-[2px] cursor-pointer transition-all ${
-                          paymentMethod === 'boleto' ? 'border-[#e8590c] bg-amber-500/5 ring-1 ring-[#e8590c]' : 'border-stone-300 bg-white'
+                        onClick={() => setPaymentMethod('faturada')}
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all text-center ${
+                          paymentMethod === 'faturada'
+                            ? 'border-[#c9a96e] bg-amber-50 ring-1 ring-[#c9a96e]'
+                            : 'border-stone-200 bg-white hover:border-stone-300'
                         }`}
                       >
-                        <FileText className="h-6 w-6 text-stone-700 mb-2" />
-                        <span className="block text-xs font-bold uppercase">BOLETO BANCÁRIO</span>
-                        <span className="text-[10px] text-stone-500 block">VENCIMENTO 2 DIAS</span>
+                        <FileText className={`h-6 w-6 mx-auto mb-1.5 ${ paymentMethod === 'faturada' ? 'text-[#c9a96e]' : 'text-stone-500' }`} />
+                        <span className="block text-xs font-extrabold uppercase" style={{ color: paymentMethod === 'faturada' ? '#5a4633' : '#374151' }}>Faturada</span>
+                        <span className="text-[9px] text-stone-400 font-bold block mt-0.5">A PRAZO</span>
                       </div>
                     </div>
 
-                    <div className="pt-4 flex justify-between items-center border-t border-stone-200">
+                    {/* Sub-opções: Cartão — parcelas */}
+                    {paymentMethod === 'cartao' && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: '#8b7355' }}>Número de parcelas</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {(['1x', '2x', '3x'] as const).map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setCardInstallment(opt)}
+                              className={`py-3 rounded-xl border-2 font-extrabold text-sm transition ${
+                                cardInstallment === opt
+                                  ? 'border-[#c9a96e] text-white'
+                                  : 'border-stone-200 text-stone-600 hover:border-stone-300 bg-white'
+                              }`}
+                              style={cardInstallment === opt ? { backgroundColor: '#c9a96e' } : {}}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-stone-400 font-mono">
+                          {cartTotal > 0 && `${cardInstallment.replace('x', '')}x de ${formatCurrency(cartTotal / parseInt(cardInstallment))}`}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Sub-opções: Faturada — prazos */}
+                    {paymentMethod === 'faturada' && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: '#8b7355' }}>Prazo de pagamento</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {(['15', '30', '30/60', '30/60/90'] as const).map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setFaturadaTerm(opt)}
+                              className={`py-3 rounded-xl border-2 font-extrabold text-xs transition ${
+                                faturadaTerm === opt
+                                  ? 'border-[#c9a96e] text-white'
+                                  : 'border-stone-200 text-stone-600 hover:border-stone-300 bg-white'
+                              }`}
+                              style={faturadaTerm === opt ? { backgroundColor: '#c9a96e' } : {}}
+                            >
+                              {opt === '15' ? '15 dias' : opt === '30' ? '30 dias' : opt === '30/60' ? '30 / 60 dias' : '30 / 60 / 90 dias'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Resumo do pagamento selecionado */}
+                    <div className="rounded-xl px-4 py-3 border" style={{ backgroundColor: '#faf8f5', borderColor: '#e8e2d8' }}>
+                      <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: '#8b7355' }}>Resumo da condição escolhida</p>
+                      <p className="text-sm font-extrabold" style={{ color: '#3d2b1f' }}>
+                        {paymentMethod === 'dinheiro' && '💵 Dinheiro — À Vista'}
+                        {paymentMethod === 'cartao' && `💳 Cartão — ${cardInstallment === '1x' ? '1x À Vista' : `${cardInstallment} de ${formatCurrency(cartTotal / parseInt(cardInstallment))}`}`}
+                        {paymentMethod === 'faturada' && `📄 Faturada — ${faturadaTerm === '15' ? '15 dias' : faturadaTerm === '30' ? '30 dias' : faturadaTerm === '30/60' ? '30 / 60 dias' : '30 / 60 / 90 dias'}`}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex justify-between items-center border-t border-stone-200">
                       <Button type="button" variant="outline" onClick={() => setStep(1)} className="border-stone-300 text-stone-700 text-xs uppercase font-bold">
                         <ArrowLeft className="h-4 w-4 mr-1" /> VOLTAR
                       </Button>
-
                       <Button
                         type="submit"
                         disabled={processing}
-                        className="bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase px-8"
+                        className="text-white font-bold text-xs uppercase px-8"
+                        style={{ backgroundColor: '#c9a96e' }}
                       >
-                        {processing ? 'PROCESSANDO...' : 'FINALIZAR PEDIDO DE COMPRA'}
+                        {processing ? 'PROCESSANDO...' : 'FINALIZAR PEDIDO'}
                       </Button>
                     </div>
                   </div>

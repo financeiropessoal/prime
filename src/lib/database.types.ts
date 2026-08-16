@@ -90,7 +90,7 @@ export type Order = {
     state: string;
     zip_code: string;
   };
-  payment_method: 'pix' | 'card' | 'boleto' | 'faturado';
+  payment_method: 'pix' | 'card' | 'boleto' | 'faturado' | 'dinheiro' | 'cartao' | 'faturada' | string;
   created_at: string;
   updated_at: string;
 };
