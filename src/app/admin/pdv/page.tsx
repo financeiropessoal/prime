@@ -222,7 +222,7 @@ export default function PdvPage() {
               <div className="p-1.5 rounded-full text-white" style={{ backgroundColor: '#c9a96e' }}>
                 <Zap className="h-3.5 w-3.5" />
               </div>
-              <span className="font-black text-xs sm:text-sm tracking-wider uppercase" style={{ color: '#3d2b1f' }}>PDV MÓVEL FAST</span>
+              <span className="hidden sm:inline font-black text-xs sm:text-sm tracking-wider uppercase" style={{ color: '#3d2b1f' }}>PDV MÓVEL FAST</span>
             </div>
           </div>
 
