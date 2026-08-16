@@ -42,9 +42,10 @@ export default function StoreHomePageV3() {
 
   useEffect(() => {
     // Debug toast to inspect environment variables on the deployed site
-    toast({
+    toast.add({
       title: "Conexão Supabase",
       description: `Configurado: ${String(require('@/lib/supabase').isSupabaseConfigured)} | URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL || 'Vazio'}`,
+      type: "info",
     });
 
     async function loadData() {
