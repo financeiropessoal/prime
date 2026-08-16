@@ -58,10 +58,10 @@ export default function ProductsCatalogPage() {
   // Unique categories list
   const categoryOptions = [
     { id: 'all', name: 'Todas as Categorias' },
-    { id: 'Chaves Codificadas', name: 'Chaves Canivete' },
-    { id: 'Carcaças de Chave', name: 'Capas de Controle' },
-    { id: 'Controles de Alarme', name: 'Controles' },
-    { id: 'Baterias', name: 'Baterias' }
+    ...Array.from(new Set(products.map(p => p.category).filter(Boolean))).map(cat => ({
+      id: cat,
+      name: cat
+    }))
   ];
 
   // Unique brands list

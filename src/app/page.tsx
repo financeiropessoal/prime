@@ -58,10 +58,11 @@ export default function StoreHomePageV3() {
 
   const categories = [
     { id: 'all', name: 'TODAS AS PEÇAS', count: products.length },
-    { id: 'Chaves Codificadas', name: 'CHAVE CANIVETE', count: products.filter(p => p.category === 'Chaves Codificadas').length },
-    { id: 'Carcaças de Chave', name: 'CAPA CONTROLE', count: products.filter(p => p.category === 'Carcaças de Chave').length },
-    { id: 'Controles de Alarme', name: 'CONTROLE', count: products.filter(p => p.category === 'Controles de Alarme').length },
-    { id: 'Baterias', name: 'BATERIAS', count: products.filter(p => p.category === 'Baterias').length }
+    ...Array.from(new Set(products.map(p => p.category).filter(Boolean))).map(cat => ({
+      id: cat,
+      name: cat.toUpperCase(),
+      count: products.filter(p => p.category === cat).length
+    }))
   ];
 
   const filteredProducts = products.filter(product => {

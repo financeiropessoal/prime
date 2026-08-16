@@ -40,7 +40,7 @@ interface CartItem {
   customUnitPrice: number;
 }
 
-const CATEGORIES = ['Todos', 'Chaves Codificadas', 'Carcaças de Chave', 'Controles de Alarme', 'Chips & Transponders', 'Baterias', 'Máquinas'];
+
 
 function getItemTotal(item: CartItem): number {
   if (item.mode === 'package') {
@@ -61,6 +61,8 @@ export default function PdvPage() {
   // Search & Filter
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+
+  const categoriesList = ['Todos', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
   // Cart State
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -230,7 +232,7 @@ export default function PdvPage() {
             </div>
 
             <div className="flex gap-1.5 overflow-x-auto pb-1">
-              {CATEGORIES.map(cat => (
+              {categoriesList.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
