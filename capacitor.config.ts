@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   // Carrega o site ao vivo da Vercel no app (requer internet)
   // Troque pela URL do seu domínio próprio se tiver
   server: {
-    url: 'https://www.primechavescodificadas.com.br',
+    url: 'https://www.primechavescodificadas.com.br/pdv',
     cleartext: false,
     androidScheme: 'https',
   },
