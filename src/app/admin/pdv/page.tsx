@@ -210,27 +210,27 @@ export default function PdvPage() {
   return (
     <div className="h-screen bg-[#f8f9fa] text-stone-900 font-sans flex flex-col overflow-hidden">
       {/* PDV Header */}
-      <header className="bg-[#1a1a1a] text-white border-b border-stone-800 shrink-0">
+      <header className="border-b shrink-0 bg-white" style={{ borderColor: '#e8e2d8' }}>
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/admin">
-              <Button variant="ghost" size="xs" className="text-stone-400 hover:text-white">
-                <ArrowLeft className="h-4 w-4 mr-1" /> Painel ERP
+              <Button variant="ghost" size="xs" className="text-stone-600 hover:text-stone-900 transition font-bold" style={{ color: '#5a4633' }}>
+                <ArrowLeft className="h-4 w-4 mr-1" style={{ color: '#c9a96e' }} /> Painel ERP
               </Button>
             </Link>
             <div className="flex items-center gap-2">
-              <div className="p-1 bg-[#e8590c] text-white rounded-[2px]">
-                <Zap className="h-4 w-4" />
+              <div className="p-1.5 rounded-full text-white" style={{ backgroundColor: '#c9a96e' }}>
+                <Zap className="h-3.5 w-3.5" />
               </div>
-              <span className="font-black text-sm tracking-wider uppercase text-white">PDV MÓVEL FAST</span>
+              <span className="font-black text-xs sm:text-sm tracking-wider uppercase" style={{ color: '#3d2b1f' }}>PDV MÓVEL FAST</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button onClick={loadData} variant="ghost" size="xs" className="text-stone-400 hover:text-white">
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <Button onClick={loadData} variant="ghost" size="xs" className="text-stone-600 hover:text-stone-900 transition">
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} style={{ color: '#c9a96e' }} />
             </Button>
-            <div className="bg-stone-900 px-3 py-1 border border-stone-700 rounded-[2px] font-mono text-xs font-bold text-[#e8590c]">
+            <div className="px-3 py-1 border rounded-full font-mono text-xs font-bold transition-all shadow-2xs" style={{ backgroundColor: '#faf8f5', borderColor: '#c9a96e', color: '#3d2b1f' }}>
               {cartCount} ITENS — {formatCurrency(cartTotal)}
             </div>
           </div>
