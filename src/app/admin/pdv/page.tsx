@@ -223,11 +223,35 @@ export default function PdvPage() {
         </div>
       </header>
 
+      {/* Mobile Tab Selector */}
+      <div className="flex md:hidden bg-stone-100 border-b border-stone-300 shrink-0">
+        <button
+          onClick={() => setMobileTab('catalog')}
+          className={`flex-1 py-3.5 text-center text-xs font-black uppercase border-b-2 cursor-pointer transition-colors ${
+            mobileTab === 'catalog'
+              ? 'border-[#e8590c] text-[#e8590c] bg-white'
+              : 'border-transparent text-stone-600 hover:bg-stone-50'
+          }`}
+        >
+          🔍 Ver Peças ({filteredProducts.length})
+        </button>
+        <button
+          onClick={() => setMobileTab('cart')}
+          className={`flex-1 py-3.5 text-center text-xs font-black uppercase border-b-2 cursor-pointer transition-colors flex items-center justify-center gap-1.5 ${
+            mobileTab === 'cart'
+              ? 'border-[#e8590c] text-[#e8590c] bg-white'
+              : 'border-transparent text-stone-600 hover:bg-stone-50'
+          }`}
+        >
+          🛒 Ver Carrinho ({cartCount})
+        </button>
+      </div>
+
       {/* Main PDV Layout */}
       <div className="flex-1 flex overflow-hidden">
 
         {/* LEFT CATALOG PANEL (60%) */}
-        <div className="w-full md:w-3/5 flex flex-col bg-[#f8f9fa] border-r border-stone-300 overflow-hidden">
+        <div className={`w-full md:w-3/5 flex flex-col bg-[#f8f9fa] border-r border-stone-300 overflow-hidden ${mobileTab === 'catalog' ? 'flex' : 'hidden md:flex'}`}>
           {/* Search & Categories */}
           <div className="p-3 bg-white border-b border-stone-300 space-y-2">
             <div className="relative">
@@ -268,7 +292,7 @@ export default function PdvPage() {
                     <LazyProductImage
                       productId={prod.id}
                       productName={prod.name}
-                      defaultImage="https://images.unsplash.com/photo-1617400301413-5858dc44f434?w=100"
+                      defaultImage="/prod_onix.jpg"
                       className="object-contain max-h-full max-w-full"
                     />
                   </div>
@@ -292,7 +316,7 @@ export default function PdvPage() {
         </div>
 
         {/* RIGHT CART & CHECKOUT PANEL (40%) */}
-        <div className="w-full md:w-2/5 flex flex-col bg-white overflow-hidden border-l border-stone-300">
+        <div className={`w-full md:w-2/5 flex flex-col bg-white overflow-hidden border-l border-stone-300 ${mobileTab === 'cart' ? 'flex' : 'hidden md:flex'}`}>
           {/* Client Selection Bar */}
           <div className="p-3 bg-stone-100 border-b border-stone-300 flex items-center justify-between">
             <div className="flex items-center gap-2">
