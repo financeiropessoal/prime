@@ -522,19 +522,23 @@ export default function PdvPage() {
                 </span>
               </div>
             </div>
-            <DialogFooter className="px-6 py-4 border-t border-stone-300 flex justify-between bg-stone-50 gap-2">
-              <Button variant="outline" onClick={() => setProductModal(null)} className="h-11 flex-1 text-xs font-bold uppercase rounded-xl border-stone-300 hover:bg-stone-100">
+            <div className="px-6 py-4 border-t border-stone-300 flex flex-row gap-3 bg-stone-50">
+              <Button
+                variant="outline"
+                onClick={() => setProductModal(null)}
+                className="h-12 flex-1 text-xs font-bold uppercase rounded-xl border-stone-300 bg-white hover:bg-stone-100 transition active:scale-95 cursor-pointer text-stone-700"
+              >
                 CANCELAR
               </Button>
               <Button
                 onClick={() => {
                   addToCart(productModal, { mode: modalMode, qty: modalQty, customPrice: modalPrice });
                 }}
-                className="h-11 flex-1 bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase rounded-xl shadow-xs transition"
+                className="h-12 flex-1 bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase rounded-xl shadow-md active:scale-95 transition cursor-pointer"
               >
                 ADICIONAR AO PDV
               </Button>
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
       )}
