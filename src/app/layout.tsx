@@ -16,9 +16,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import type { Viewport } from "next";
+
 export const metadata: Metadata = {
   title: "Prime Chaves Codificadas",
   description: "Distribuidora de chaves canivete, capas de controle e baterias automotivas no atacado.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Prime Chaves",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c9a96e",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -39,6 +55,19 @@ export default function RootLayout({
             </Toaster>
           </CartProvider>
         </AuthProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(reg) { console.log('SW registered'); })
+                    .catch(function(err) { console.error('SW registration failed', err); });
+                });
+              }
+            `
+          }}
+        />
       </body>
     </html>
   );
