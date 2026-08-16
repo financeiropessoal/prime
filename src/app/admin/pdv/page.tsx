@@ -481,60 +481,7 @@ export default function PdvPage() {
                     className="pl-10 h-14 text-base sm:text-lg font-mono font-black text-stone-900 rounded-xl border-stone-300"
                   />
                 </div>
-                
-                {/* Quick adjustment buttons */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const basePrice = modalMode === 'package'
-                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
-                        : productModal.sale_price;
-                      setModalPrice(parseFloat((basePrice * 0.95).toFixed(2)));
-                    }}
-                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
-                  >
-                    -5%
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const basePrice = modalMode === 'package'
-                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
-                        : productModal.sale_price;
-                      setModalPrice(parseFloat((basePrice * 0.90).toFixed(2)));
-                    }}
-                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
-                  >
-                    -10%
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalPrice(p => parseFloat(Math.max(0, p - 1).toFixed(2)))}
-                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
-                  >
-                    -R$1
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalPrice(p => parseFloat(Math.max(0, p - 5).toFixed(2)))}
-                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
-                  >
-                    -R$5
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const basePrice = modalMode === 'package'
-                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
-                        : productModal.sale_price;
-                      setModalPrice(parseFloat(basePrice.toFixed(2)));
-                    }}
-                    className="ml-auto px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-[10px] sm:text-xs font-bold rounded-lg text-amber-800 cursor-pointer transition active:scale-95"
-                  >
-                    🔄 Restaurar
-                  </button>
-                </div>
+
 
                 {modalMode === 'package' && (
                   <div className="flex justify-between items-center text-stone-500 text-[10px] px-1 pt-1 font-medium">
