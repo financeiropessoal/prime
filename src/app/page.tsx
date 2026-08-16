@@ -41,6 +41,12 @@ export default function StoreHomePageV3() {
   const { cartCount, addToCart } = useCart();
 
   useEffect(() => {
+    // Debug toast to inspect environment variables on the deployed site
+    toast({
+      title: "Conexão Supabase",
+      description: `Configurado: ${String(require('@/lib/supabase').isSupabaseConfigured)} | URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL || 'Vazio'}`,
+    });
+
     async function loadData() {
       try {
         const prodsData = await dbService.getProducts();
