@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   description: "Distribuidora de chaves canivete, capas de controle e baterias automotivas no atacado.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: "/favicon.png",
+    apple: "/favicon.png",
   },
   appleWebApp: {
     capable: true,
