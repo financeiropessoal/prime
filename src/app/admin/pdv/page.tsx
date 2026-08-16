@@ -76,6 +76,12 @@ export default function PdvPage() {
   const [modalPrice, setModalPrice] = useState(0);
   const [showCheckout, setShowCheckout] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
+
+  const handleOpenClientModal = () => {
+    setClientSearchQuery('');
+    setShowClientModal(true);
+  };
 
   const handleOpenProductModal = (prod: Product) => {
     setModalQty(1);
@@ -342,7 +348,7 @@ export default function PdvPage() {
             <Button
               size="xs"
               variant="outline"
-              onClick={() => setShowClientModal(true)}
+              onClick={handleOpenClientModal}
               className="border-stone-300 text-stone-800 text-[10px] uppercase font-bold"
             >
               {selectedClient ? 'ALTERAR' : 'VINCULAR'}
@@ -577,16 +583,42 @@ export default function PdvPage() {
             <div className="px-6 py-4 border-b border-stone-300 bg-stone-100">
               <DialogTitle className="text-sm font-black uppercase text-stone-900">SELECIONAR CLIENTE</DialogTitle>
             </div>
+            {/* Client Search Bar */}
+            <div className="p-3 bg-white border-b border-stone-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <Input
+                  placeholder="Buscar cliente por nome ou CPF/CNPJ..."
+                  value={clientSearchQuery}
+                  onChange={e => setClientSearchQuery(e.target.value)}
+                  className="pl-9 h-10 text-xs"
+                />
+              </div>
+            </div>
+            {/* Filtered Clients List */}
             <div className="p-4 max-h-60 overflow-y-auto space-y-2 text-xs font-sans">
-              {clients.map(c => (
-                <div
-                  key={c.id}
-                  onClick={() => { setSelectedClient(c); setShowClientModal(false); }}
-                  className="p-2.5 border border-stone-200 rounded-[2px] hover:bg-stone-100 cursor-pointer font-bold uppercase"
-                >
-                  {c.name} ({c.document})
+              {clients
+                .filter(c =>
+                  c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+                  c.document.toLowerCase().includes(clientSearchQuery.toLowerCase())
+                )
+                .map(c => (
+                  <div
+                    key={c.id}
+                    onClick={() => { setSelectedClient(c); setShowClientModal(false); }}
+                    className="p-2.5 border border-stone-200 rounded-[2px] hover:bg-stone-100 cursor-pointer font-bold uppercase transition"
+                  >
+                    {c.name} ({c.document})
+                  </div>
+                ))}
+              {clients.filter(c =>
+                c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+                c.document.toLowerCase().includes(clientSearchQuery.toLowerCase())
+              ).length === 0 && (
+                <div className="text-center py-6 text-stone-400 font-medium">
+                  Nenhum cliente encontrado.
                 </div>
-              ))}
+              )}
             </div>
             <DialogFooter className="px-6 py-4 border-t border-stone-300 bg-stone-50">
               <Button variant="outline" onClick={() => setShowClientModal(false)} className="text-xs font-bold uppercase">FECHAR</Button>
