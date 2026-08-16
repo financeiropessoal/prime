@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+
 /**
  * Serviço de Impressão Bluetooth para Impressoras Térmicas ESC/POS
  * Compatível com: Bematech, Epson, Elgin, e impressoras de maquininhas
@@ -202,6 +204,6 @@ export const BluetoothPrinter = {
 
   /** Verifica se está rodando no app nativo (Capacitor) */
   isNativeApp(): boolean {
-    return typeof window !== 'undefined' && !!window.BluetoothSerial;
+    return typeof window !== 'undefined' && Capacitor.isNativePlatform();
   },
 };
