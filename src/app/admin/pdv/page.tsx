@@ -429,11 +429,12 @@ export default function PdvPage() {
                     <button
                       type="button"
                       onClick={() => handleModeChange('unit')}
-                      className={`h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
+                      style={
                         modalMode === 'unit'
-                          ? 'bg-stone-900 text-white border-stone-900'
-                          : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
-                      }`}
+                          ? { backgroundColor: '#c9a96e', borderColor: '#c9a96e', color: '#ffffff' }
+                          : { borderColor: '#e8e2d8', color: '#5a4633' }
+                      }
+                      className="h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center bg-white hover:bg-stone-50"
                     >
                       <span>VAREJO</span>
                       <span className="text-[9px] font-medium opacity-80">
@@ -444,11 +445,12 @@ export default function PdvPage() {
                     <button
                       type="button"
                       onClick={() => handleModeChange('package')}
-                      className={`h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
+                      style={
                         modalMode === 'package'
-                          ? 'bg-stone-900 text-white border-stone-900'
-                          : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
-                      }`}
+                          ? { backgroundColor: '#c9a96e', borderColor: '#c9a96e', color: '#ffffff' }
+                          : { borderColor: '#e8e2d8', color: '#5a4633' }
+                      }
+                      className="h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center bg-white hover:bg-stone-50"
                     >
                       <span>ATACADO (PACOTE)</span>
                       <span className="text-[9px] font-medium opacity-80">
