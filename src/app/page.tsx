@@ -38,6 +38,7 @@ export default function StoreHomePageV3() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAllProducts, setShowAllProducts] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { cartCount, addToCart } = useCart();
 
@@ -170,8 +171,40 @@ export default function StoreHomePageV3() {
                 </span>
               )}
             </button>
+
+            {/* Sandwich Menu Button for Mobile */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="inline-flex sm:hidden h-10 w-10 items-center justify-center rounded-full border hover:bg-stone-100 transition cursor-pointer"
+              style={{ borderColor: '#e8e2d8', color: '#5a4633' }}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
         </div>
+
+        {/* Mobile Nav Dropdown Menu */}
+        {isMobileMenuOpen && (
+          <div className="sm:hidden border-t py-3 px-5 flex flex-col gap-2.5 bg-white shadow-md" style={{ borderColor: '#e8e2d8' }}>
+            <Link 
+              href="/admin" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 text-xs font-bold py-2.5 px-4 rounded-full hover:bg-stone-50 transition" 
+              style={{ color: '#5a4633' }}
+            >
+              <Lock className="h-4 w-4" style={{ color: '#c9a96e' }} /> Painel ERP
+            </Link>
+
+            <Link 
+              href="/cliente" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 text-xs font-bold py-2.5 px-4 rounded-full hover:bg-stone-50 transition" 
+              style={{ color: '#5a4633' }}
+            >
+              <User className="h-4 w-4" style={{ color: '#c9a96e' }} /> Minha Conta
+            </Link>
+          </div>
+        )}
       </header>
 
       {/* ── HERO SECTION (HERO WARM & SEARCH PILL) ─────────────────── */}
