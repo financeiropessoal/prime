@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { LazyProductImage } from '@/components/ui/lazy-product-image';
 import {
   Search,
   ShoppingCart,
@@ -70,8 +71,16 @@ export default function PdvPage() {
 
   // Modals & Panels
   const [productModal, setProductModal] = useState<Product | null>(null);
+  const [modalQty, setModalQty] = useState(1);
+  const [modalMode, setModalMode] = useState<PurchaseMode>('unit');
   const [showCheckout, setShowCheckout] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
+
+  const handleOpenProductModal = (prod: Product) => {
+    setModalQty(1);
+    setModalMode('unit');
+    setProductModal(prod);
+  };
 
   // Mobile navigation tab
   const [mobileTab, setMobileTab] = useState<'catalog' | 'cart'>('catalog');
@@ -251,15 +260,16 @@ export default function PdvPage() {
             {filteredProducts.map(prod => (
               <div
                 key={prod.id}
-                onClick={() => setProductModal(prod)}
+                onClick={() => handleOpenProductModal(prod)}
                 className="bg-white border border-stone-300 rounded-[2px] p-2.5 flex flex-col justify-between hover:border-[#e8590c] cursor-pointer transition-colors group"
               >
                 <div>
                   <div className="w-full aspect-square bg-stone-100 border border-stone-200 mb-2 p-1 flex items-center justify-center">
-                    <img
-                      src={prod.images?.[0] || 'https://images.unsplash.com/photo-1617400301413-5858dc44f434?w=100'}
-                      alt={prod.name}
-                      className="object-contain max-h-full"
+                    <LazyProductImage
+                      productId={prod.id}
+                      productName={prod.name}
+                      defaultImage="https://images.unsplash.com/photo-1617400301413-5858dc44f434?w=100"
+                      className="object-contain max-h-full max-w-full"
                     />
                   </div>
                   <span className="text-[9px] font-mono text-stone-500 block">SKU: {prod.sku}</span>
@@ -362,21 +372,128 @@ export default function PdvPage() {
       {/* PRODUCT CONFIG MODAL */}
       {productModal && (
         <Dialog open={true} onOpenChange={() => setProductModal(null)}>
-          <DialogContent className="max-w-md w-full p-0 gap-0 rounded-[2px] bg-white border border-stone-300 shadow-2xl">
-            <div className="px-6 py-4 border-b border-stone-300 bg-stone-100">
-              <DialogTitle className="text-sm font-black uppercase text-stone-900">{productModal.name}</DialogTitle>
+          <DialogContent className="max-w-md w-full p-0 gap-0 rounded-2xl bg-white border border-stone-300 shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-stone-300 bg-stone-100 flex items-center justify-between">
+              <DialogTitle className="text-sm font-black uppercase text-stone-900 leading-tight">
+                {productModal.name}
+              </DialogTitle>
             </div>
             <div className="p-6 space-y-4 text-xs font-sans">
-              <p className="font-mono text-stone-500">SKU: {productModal.sku} | ESTOQUE: {productModal.stock_current} UN</p>
-              <div className="p-3 bg-stone-100 border border-stone-200 font-mono text-stone-900">
-                PREÇO VAREJO: {formatCurrency(productModal.sale_price)}
+              <p className="font-mono text-stone-500">
+                SKU: {productModal.sku} | ESTOQUE: {productModal.stock_current} UN
+              </p>
+
+              {/* Purchase Mode Select (Atacado / Varejo) if applicable */}
+              {productModal.package_qty && productModal.package_discount_pct ? (
+                <div className="space-y-1.5">
+                  <span className="font-bold text-[10px] uppercase text-stone-500">TIPO DE COMPRA</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setModalMode('unit')}
+                      className={`h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
+                        modalMode === 'unit'
+                          ? 'bg-stone-900 text-white border-stone-900'
+                          : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
+                      }`}
+                    >
+                      <span>VAREJO</span>
+                      <span className="text-[9px] font-medium opacity-80">
+                        {formatCurrency(productModal.sale_price)} / un
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setModalMode('package')}
+                      className={`h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
+                        modalMode === 'package'
+                          ? 'bg-stone-900 text-white border-stone-900'
+                          : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
+                      }`}
+                    >
+                      <span>ATACADO (PACOTE)</span>
+                      <span className="text-[9px] font-medium opacity-80">
+                        {formatCurrency(productModal.sale_price * (1 - productModal.package_discount_pct! / 100))} / un
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Price Details */}
+              <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                <div className="flex justify-between items-center text-stone-700">
+                  <span className="font-medium">Preço Unitário:</span>
+                  <span className="font-mono font-bold text-sm">
+                    {formatCurrency(
+                      modalMode === 'package'
+                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
+                        : productModal.sale_price
+                    )}
+                  </span>
+                </div>
+                {modalMode === 'package' && (
+                  <div className="flex justify-between items-center text-stone-500 text-[10px]">
+                    <span>Itens por Pacote:</span>
+                    <span className="font-bold">{productModal.package_qty || 10} unidades</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Quantity Selector - Large Touch Buttons for Card Terminal */}
+              <div className="space-y-1.5">
+                <span className="font-bold text-[10px] uppercase text-stone-500">QUANTIDADE</span>
+                <div className="flex items-center justify-between border border-stone-300 rounded-xl p-2 bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setModalQty(q => Math.max(1, q - 1))}
+                    className="h-12 w-12 rounded-full border border-stone-300 bg-stone-50 hover:bg-stone-100 flex items-center justify-center text-xl font-bold cursor-pointer select-none transition active:scale-95 animate-none"
+                    style={{ color: '#5a4633' }}
+                  >
+                    -
+                  </button>
+                  <div className="text-center">
+                    <span className="font-mono font-black text-xl text-stone-900">{modalQty}</span>
+                    <span className="text-[10px] block text-stone-400 font-medium mt-0.5">
+                      {modalMode === 'package' ? 'pacote(s)' : 'unidade(s)'}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalQty(q => q + 1)}
+                    className="h-12 w-12 rounded-full border border-stone-300 bg-stone-50 hover:bg-stone-100 flex items-center justify-center text-xl font-bold cursor-pointer select-none transition active:scale-95 animate-none"
+                    style={{ color: '#5a4633' }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Real-time Total Price */}
+              <div className="pt-2 flex justify-between items-center border-t border-stone-200">
+                <span className="font-bold text-xs uppercase text-stone-700">VALOR TOTAL DO ITEM:</span>
+                <span className="font-mono font-black text-lg" style={{ color: '#e8590c' }}>
+                  {formatCurrency(
+                    (modalMode === 'package'
+                      ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100) * (productModal.package_qty || 10)
+                      : productModal.sale_price) * modalQty
+                  )}
+                </span>
               </div>
             </div>
-            <DialogFooter className="px-6 py-4 border-t border-stone-300 flex justify-between bg-stone-50">
-              <Button variant="outline" onClick={() => setProductModal(null)} className="text-xs font-bold uppercase">CANCELAR</Button>
+            <DialogFooter className="px-6 py-4 border-t border-stone-300 flex justify-between bg-stone-50 gap-2">
+              <Button variant="outline" onClick={() => setProductModal(null)} className="h-11 flex-1 text-xs font-bold uppercase rounded-xl border-stone-300 hover:bg-stone-100">
+                CANCELAR
+              </Button>
               <Button
-                onClick={() => addToCart(productModal, { mode: 'unit', qty: 1, customPrice: productModal.sale_price })}
-                className="bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase"
+                onClick={() => {
+                  const finalPrice = modalMode === 'package'
+                    ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
+                    : productModal.sale_price;
+                  addToCart(productModal, { mode: modalMode, qty: modalQty, customPrice: finalPrice });
+                }}
+                className="h-11 flex-1 bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase rounded-xl shadow-xs transition"
               >
                 ADICIONAR AO PDV
               </Button>
