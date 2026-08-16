@@ -73,13 +73,27 @@ export default function PdvPage() {
   const [productModal, setProductModal] = useState<Product | null>(null);
   const [modalQty, setModalQty] = useState(1);
   const [modalMode, setModalMode] = useState<PurchaseMode>('unit');
+  const [modalPrice, setModalPrice] = useState(0);
   const [showCheckout, setShowCheckout] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
 
   const handleOpenProductModal = (prod: Product) => {
     setModalQty(1);
     setModalMode('unit');
+    setModalPrice(prod.sale_price);
     setProductModal(prod);
+  };
+
+  const handleModeChange = (mode: PurchaseMode) => {
+    setModalMode(mode);
+    if (productModal) {
+      if (mode === 'package') {
+        const disc = productModal.package_discount_pct || 10;
+        setModalPrice(productModal.sale_price * (1 - disc / 100));
+      } else {
+        setModalPrice(productModal.sale_price);
+      }
+    }
   };
 
   // Mobile navigation tab
@@ -414,7 +428,7 @@ export default function PdvPage() {
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      onClick={() => setModalMode('unit')}
+                      onClick={() => handleModeChange('unit')}
                       className={`h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
                         modalMode === 'unit'
                           ? 'bg-stone-900 text-white border-stone-900'
@@ -429,7 +443,7 @@ export default function PdvPage() {
 
                     <button
                       type="button"
-                      onClick={() => setModalMode('package')}
+                      onClick={() => handleModeChange('package')}
                       className={`h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
                         modalMode === 'package'
                           ? 'bg-stone-900 text-white border-stone-900'
@@ -445,20 +459,22 @@ export default function PdvPage() {
                 </div>
               ) : null}
 
-              {/* Price Details */}
-              <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
-                <div className="flex justify-between items-center text-stone-700">
-                  <span className="font-medium">Preço Unitário:</span>
-                  <span className="font-mono font-bold text-sm">
-                    {formatCurrency(
-                      modalMode === 'package'
-                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
-                        : productModal.sale_price
-                    )}
-                  </span>
+              {/* Price Details - Editable Input */}
+              <div className="space-y-1.5">
+                <span className="font-bold text-[10px] uppercase text-stone-500">PREÇO UNITÁRIO DE VENDA (R$)</span>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold text-xs">R$</span>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={modalPrice === 0 ? '' : modalPrice}
+                    onChange={e => setModalPrice(parseFloat(e.target.value) || 0)}
+                    className="pl-8 h-11 text-xs font-mono font-bold"
+                  />
                 </div>
                 {modalMode === 'package' && (
-                  <div className="flex justify-between items-center text-stone-500 text-[10px]">
+                  <div className="flex justify-between items-center text-stone-500 text-[9px] px-1">
                     <span>Itens por Pacote:</span>
                     <span className="font-bold">{productModal.package_qty || 10} unidades</span>
                   </div>
@@ -500,8 +516,8 @@ export default function PdvPage() {
                 <span className="font-mono font-black text-lg" style={{ color: '#e8590c' }}>
                   {formatCurrency(
                     (modalMode === 'package'
-                      ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100) * (productModal.package_qty || 10)
-                      : productModal.sale_price) * modalQty
+                      ? modalPrice * (productModal.package_qty || 10)
+                      : modalPrice) * modalQty
                   )}
                 </span>
               </div>
@@ -512,10 +528,7 @@ export default function PdvPage() {
               </Button>
               <Button
                 onClick={() => {
-                  const finalPrice = modalMode === 'package'
-                    ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
-                    : productModal.sale_price;
-                  addToCart(productModal, { mode: modalMode, qty: modalQty, customPrice: finalPrice });
+                  addToCart(productModal, { mode: modalMode, qty: modalQty, customPrice: modalPrice });
                 }}
                 className="h-11 flex-1 bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase rounded-xl shadow-xs transition"
               >
