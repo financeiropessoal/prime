@@ -198,7 +198,7 @@ export default function AdminDashboard() {
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider block" style={{ color: '#c9a96e' }}>ANÁLISE DE RESULTADO</span>
             <h2 className="text-sm font-black uppercase" style={{ color: '#3d2b1f' }}>DRE SIMPLIFICADO — MÊS VIGENTE</h2>
           </div>
-          <Badge className="bg-[#1a1a1a] text-white border-none text-[10px] font-mono uppercase">COMPETÊNCIA MENSAL</Badge>
+          <Badge className="text-white border-none text-[10px] font-mono uppercase cursor-default" style={{ backgroundColor: '#c9a96e' }}>COMPETÊNCIA MENSAL</Badge>
         </div>
 
         <div className="overflow-x-auto">

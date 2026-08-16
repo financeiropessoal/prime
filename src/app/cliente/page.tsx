@@ -304,7 +304,7 @@ export default function ClienteAreaPage() {
             {client && (
               <div className="bg-white border border-stone-300 p-6 rounded-[2px] flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-[#1a1a1a] text-[#e8590c] font-black text-base rounded-[2px] flex items-center justify-center border border-stone-700 font-mono">
+                  <div className="h-12 w-12 text-white font-black text-base rounded-xl flex items-center justify-center font-sans shadow-xs" style={{ backgroundColor: '#c9a96e' }}>
                     {client.name.substring(0, 2).toUpperCase()}
                   </div>
                   <div>

@@ -480,7 +480,8 @@ export default function AcertosPage() {
                 <Button 
                   type="button" 
                   onClick={handleAutofillRange}
-                  className="w-full h-11 bg-zinc-900 text-orange-500 font-bold hover:bg-zinc-800 text-[10px] uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-2xs"
+                  style={{ backgroundColor: '#c9a96e' }}
+                  className="w-full h-11 text-white font-bold hover:opacity-90 transition text-[10px] uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                 >
                   <RefreshCw className="h-3.5 w-3.5" /> PUXAR PERÍODO
                 </Button>
@@ -494,7 +495,8 @@ export default function AcertosPage() {
                 <Button
                   type="button"
                   onClick={addExpenseItem}
-                  className="h-7 px-2.5 rounded-lg bg-zinc-900 text-orange-500 hover:bg-zinc-800 flex items-center justify-center gap-1 cursor-pointer shadow-xs text-[10px] font-bold"
+                  style={{ backgroundColor: '#c9a96e' }}
+                  className="h-7 px-2.5 rounded-lg text-white hover:opacity-90 flex items-center justify-center gap-1 cursor-pointer shadow-xs text-[10px] font-bold transition"
                 >
                   <Plus className="h-3 w-3" /> ADICIONAR
                 </Button>

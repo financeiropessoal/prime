@@ -174,7 +174,7 @@ export default function ProdutoDetalhePage() {
                 <Badge className="bg-emerald-600 text-white border-none font-bold text-[9px] uppercase">
                   PRONTA ENTREGA
                 </Badge>
-                <Badge className="bg-[#1a1a1a] text-white border-none font-bold text-[9px] uppercase">
+                <Badge className="text-white border-none font-bold text-[9px] uppercase" style={{ backgroundColor: '#c9a96e' }}>
                   GARANTIA 2 ANOS
                 </Badge>
               </div>

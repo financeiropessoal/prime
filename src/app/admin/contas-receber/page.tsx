@@ -256,9 +256,10 @@ export default function ContasReceberPage() {
           }}
           className={`font-bold text-xs uppercase px-6 py-3 rounded-full cursor-pointer transition-all ${
             activeTab === 'pending'
-              ? 'bg-zinc-900 text-orange-500 shadow-sm'
+              ? 'text-white shadow-sm'
               : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
           }`}
+          style={activeTab === 'pending' ? { backgroundColor: '#c9a96e' } : {}}
         >
           ⏳ A Receber (O que me devem)
         </button>
@@ -269,9 +270,10 @@ export default function ContasReceberPage() {
           }}
           className={`font-bold text-xs uppercase px-6 py-3 rounded-full cursor-pointer transition-all ${
             activeTab === 'paid'
-              ? 'bg-zinc-900 text-orange-500 shadow-sm'
+              ? 'text-white shadow-sm'
               : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
           }`}
+          style={activeTab === 'paid' ? { backgroundColor: '#c9a96e' } : {}}
         >
           ✅ Recebidos (Quitados)
         </button>

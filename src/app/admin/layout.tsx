@@ -224,19 +224,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex h-screen w-screen overflow-hidden font-sans" style={{ backgroundColor: '#faf8f5', color: '#3d2b1f' }}>
       
-      {/* 1. SIDEBAR FIXED (ESPRESSO #3D2B1F) */}
+      {/* 1. SIDEBAR FIXED (LIGHT THEME) */}
       <aside
         className={`hidden md:flex flex-col border-r transition-all duration-200 z-30 shrink-0 ${
           sidebarCollapsed ? 'w-16' : 'w-64'
         }`}
-        style={{ backgroundColor: '#3d2b1f', borderColor: 'rgba(255,255,255,0.1)' }}
+        style={{ backgroundColor: '#ffffff', borderColor: '#e8e2d8' }}
       >
         {/* Header Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#332318' }}>
+        <div className="h-16 flex items-center justify-between px-4 border-b" style={{ borderColor: '#e8e2d8', backgroundColor: '#faf8f5' }}>
           {!sidebarCollapsed && (
             <Link href="/admin" className="flex items-center">
               <img 
-                src="/logo-white.png" 
+                src="/logo.png" 
                 alt="Prime Chaves Codificadas" 
                 className="h-8 w-auto object-contain" 
               />
@@ -245,17 +245,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {sidebarCollapsed && (
             <div 
               className="h-8 w-8 rounded-lg grid place-items-center text-white mx-auto font-black text-xs relative overflow-hidden" 
-              style={{ backgroundColor: '#e8590c' }}
+              style={{ backgroundColor: '#c9a96e' }}
             >
               PR
             </div>
           )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 hover:bg-stone-800 rounded-lg text-stone-300 transition cursor-pointer"
+            className="p-1.5 hover:bg-stone-100 rounded-lg text-stone-600 transition cursor-pointer"
             title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
           >
-            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" style={{ color: '#c9a96e' }} /> : <ChevronLeft className="h-4 w-4" style={{ color: '#c9a96e' }} />}
           </button>
         </div>
 
@@ -264,7 +264,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {navGroups.map((group) => (
             <div key={group.group} className="space-y-1.5">
               {!sidebarCollapsed && (
-                <div className="px-2 text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: '#a39281' }}>
+                <div className="px-2 text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: '#8b7355' }}>
                   {group.group}
                 </div>
               )}
@@ -280,11 +280,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                       isActive
                         ? 'text-white font-extrabold shadow-xs'
-                        : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                     }`}
                     style={isActive ? { backgroundColor: '#c9a96e' } : {}}
                   >
-                    <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-stone-300'}`} />
+                    <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-stone-500'}`} />
                     {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </Link>
                 );
@@ -294,17 +294,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Footer Sidebar */}
-        <div className="p-3 border-t space-y-1.5" style={{ backgroundColor: '#332318', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div className="p-3 border-t space-y-1.5" style={{ backgroundColor: '#faf8f5', borderColor: '#e8e2d8' }}>
           <Link
             href="/"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-stone-300 hover:bg-white/10 hover:text-white transition uppercase tracking-wider"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition uppercase tracking-wider"
           >
-            <ShoppingBag className="h-4 w-4 text-amber-400" />
+            <ShoppingBag className="h-4 w-4" style={{ color: '#c9a96e' }} />
             {!sidebarCollapsed && <span>Ver Loja</span>}
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-300 hover:bg-red-950/40 transition cursor-pointer uppercase tracking-wider"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer uppercase tracking-wider"
           >
             <LogOut className="h-4 w-4" />
             {!sidebarCollapsed && <span>Sair</span>}
@@ -315,17 +315,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* MOBILE DRAWER */}
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden bg-black/60 backdrop-blur-xs">
-          <aside className="w-64 bg-[#1a1a1a] h-full flex flex-col p-4 text-stone-100 border-r border-stone-800">
-            <div className="flex items-center justify-between pb-4 border-b border-stone-800">
+          <aside className="w-64 bg-white h-full flex flex-col p-4 text-stone-850 border-r" style={{ borderColor: '#e8e2d8' }}>
+            <div className="flex items-center justify-between pb-4 border-b" style={{ borderColor: '#e8e2d8' }}>
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-[#e8590c] text-white rounded-[2px]">
+                <div className="p-1.5 rounded-full text-white" style={{ backgroundColor: '#c9a96e' }}>
                   <Building2 className="h-4 w-4" />
                 </div>
-                <span className="font-black text-sm tracking-wider text-white uppercase">PRIME AUTOMOTIVE</span>
+                <span className="font-black text-xs sm:text-sm tracking-wider uppercase" style={{ color: '#3d2b1f' }}>PRIME AUTOMOTIVE</span>
               </div>
               <button
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 text-stone-400 hover:text-white"
+                className="p-1 text-stone-500 hover:text-stone-850 transition cursor-pointer"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -345,13 +345,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         key={item.href}
                         href={item.href}
                         onClick={() => setMobileSidebarOpen(false)}
-                        className={`flex items-center gap-3 px-2.5 py-2 rounded-[2px] text-xs font-semibold uppercase tracking-wider transition-all ${
+                        className={`flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                           isActive
-                            ? 'bg-[#e8590c] text-white'
-                            : 'text-stone-300 hover:bg-stone-800'
+                            ? 'text-white font-extrabold shadow-xs'
+                            : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                         }`}
+                        style={isActive ? { backgroundColor: '#c9a96e' } : {}}
                       >
-                        <IconComponent className="h-4 w-4 text-stone-400" />
+                        <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-stone-500'}`} />
                         <span>{item.label}</span>
                       </Link>
                     );
@@ -360,17 +361,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               ))}
             </nav>
 
-            <div className="border-t border-stone-800 pt-4 space-y-1">
+            <div className="border-t pt-4 space-y-1" style={{ borderColor: '#e8e2d8' }}>
               <Link
                 href="/"
-                className="flex items-center gap-2.5 px-2.5 py-2 text-xs font-bold text-stone-400 hover:text-white uppercase"
+                className="flex items-center gap-2.5 px-2.5 py-2 text-xs font-bold text-stone-600 hover:text-stone-900 uppercase transition"
               >
-                <ShoppingBag className="h-4 w-4" />
+                <ShoppingBag className="h-4 w-4" style={{ color: '#c9a96e' }} />
                 <span>Ver Loja</span>
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs font-bold text-red-400 hover:text-red-300 uppercase cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs font-bold text-red-600 hover:text-red-50 uppercase cursor-pointer transition"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sair</span>

@@ -197,7 +197,7 @@ export default function AdminBannerPage() {
               </p>
 
               <div className="pt-2">
-                <Button className="bg-stone-900 hover:bg-[#e8590c] text-white font-bold text-xs uppercase px-5 h-10 rounded-[4px] shadow-xs pointer-events-none">
+                <Button className="text-white font-bold text-xs uppercase px-5 h-10 rounded-full shadow-xs pointer-events-none" style={{ backgroundColor: '#c9a96e' }}>
                   {buttonText || 'VER OFERTAS'} <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
@@ -229,7 +229,7 @@ export default function AdminBannerPage() {
                 onChange={handleFileUpload}
                 className="hidden"
               />
-              <div className="h-10 px-4 bg-stone-900 hover:bg-[#e8590c] text-white font-bold text-xs uppercase rounded-[4px] flex items-center gap-2 transition-colors">
+              <div className="h-10 px-4 text-white font-bold text-xs uppercase rounded-full flex items-center gap-2 transition-colors hover:opacity-90 cursor-pointer" style={{ backgroundColor: '#5a4633' }}>
                 <Upload className="h-4 w-4" /> SELECIONAR IMAGEM DO COMPUTADOR
               </div>
             </label>

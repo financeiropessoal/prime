@@ -290,7 +290,7 @@ export default function ProductsCatalogPage() {
                         )}
 
                         {/* SKU Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-stone-900/80 text-white font-mono text-[9px] px-2 py-0.5 rounded-full border-none">
+                        <Badge className="absolute bottom-3 right-3 text-white font-mono text-[9px] px-2 py-0.5 rounded-full border-none" style={{ backgroundColor: 'rgba(61,43,31,0.72)' }}>
                           SKU: {product.sku}
                         </Badge>
                       </div>

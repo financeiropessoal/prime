@@ -711,8 +711,9 @@ export default function ProspeccaoPage() {
               className={`h-11 px-6 rounded-xl text-xs font-bold uppercase transition flex items-center justify-center gap-1.5 w-full cursor-pointer shadow-xs ${
                 gpsActive 
                   ? 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500 animate-pulse' 
-                  : 'bg-stone-900 hover:bg-stone-800 text-white'
+                  : 'text-white hover:opacity-90'
               }`}
+              style={!gpsActive ? { backgroundColor: '#5a4633' } : {}}
             >
               <Navigation className="h-4 w-4" /> 
               {gpsActive ? 'GPS Ativo (Organizado)' : 'Organizar por GPS (Mais Perto)'}
@@ -999,7 +1000,8 @@ export default function ProspeccaoPage() {
                             <Button
                               size="xs"
                               onClick={() => handleUnblockProspect(p.id)}
-                              className="font-bold text-[10px] uppercase px-3 h-8 rounded-full shadow-xs cursor-pointer bg-stone-900 text-white hover:bg-stone-850"
+                              className="font-bold text-[10px] uppercase px-3 h-8 rounded-full shadow-xs cursor-pointer text-white hover:opacity-90"
+                              style={{ backgroundColor: '#c9a96e' }}
                             >
                               🔓 Desbloquear
                             </Button>

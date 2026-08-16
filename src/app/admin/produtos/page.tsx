@@ -527,7 +527,7 @@ export default function ProdutosAdminPage() {
                     </Badge>
                   </div>
                   {/* SKU */}
-                  <div className="absolute bottom-2 left-2.5 bg-black/70 text-white font-mono text-[9px] font-bold px-2 py-0.5 rounded-sm">
+                  <div className="absolute bottom-2 left-2.5 text-white font-mono text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(61,43,31,0.72)' }}>
                     {p.sku}
                   </div>
                 </div>
