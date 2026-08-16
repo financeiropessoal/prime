@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   title: "Prime Chaves Codificadas",
   description: "Distribuidora de chaves canivete, capas de controle e baterias automotivas no atacado.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
