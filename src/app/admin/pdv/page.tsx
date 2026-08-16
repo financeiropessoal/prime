@@ -418,19 +418,19 @@ export default function PdvPage() {
         <Dialog open={true} onOpenChange={() => setProductModal(null)}>
           <DialogContent className="max-w-md w-full p-0 gap-0 rounded-2xl bg-white border border-stone-300 shadow-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-stone-300 bg-stone-100 flex items-center justify-between">
-              <DialogTitle className="text-sm font-black uppercase text-stone-900 leading-tight">
+              <DialogTitle className="text-base sm:text-lg font-black uppercase text-stone-900 leading-tight">
                 {productModal.name}
               </DialogTitle>
             </div>
-            <div className="p-6 space-y-4 text-xs font-sans">
-              <p className="font-mono text-stone-500">
+            <div className="p-6 space-y-4 text-sm font-sans">
+              <p className="font-mono text-stone-500 text-xs sm:text-sm">
                 SKU: {productModal.sku} | ESTOQUE: {productModal.stock_current} UN
               </p>
 
               {/* Purchase Mode Select (Atacado / Varejo) if applicable */}
               {productModal.package_qty && productModal.package_discount_pct ? (
                 <div className="space-y-1.5">
-                  <span className="font-bold text-[10px] uppercase text-stone-500">TIPO DE COMPRA</span>
+                  <span className="font-bold text-xs uppercase text-stone-600">TIPO DE COMPRA</span>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
@@ -440,10 +440,10 @@ export default function PdvPage() {
                           ? { backgroundColor: '#c9a96e', borderColor: '#c9a96e', color: '#ffffff' }
                           : { borderColor: '#e8e2d8', color: '#5a4633' }
                       }
-                      className="h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center bg-white hover:bg-stone-50"
+                      className="h-12 rounded-xl border text-xs sm:text-sm font-bold transition cursor-pointer flex flex-col items-center justify-center bg-white hover:bg-stone-50"
                     >
                       <span>VAREJO</span>
-                      <span className="text-[9px] font-medium opacity-80">
+                      <span className="text-[10px] font-medium opacity-80">
                         {formatCurrency(productModal.sale_price)} / un
                       </span>
                     </button>
@@ -456,10 +456,10 @@ export default function PdvPage() {
                           ? { backgroundColor: '#c9a96e', borderColor: '#c9a96e', color: '#ffffff' }
                           : { borderColor: '#e8e2d8', color: '#5a4633' }
                       }
-                      className="h-11 rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center bg-white hover:bg-stone-50"
+                      className="h-12 rounded-xl border text-xs sm:text-sm font-bold transition cursor-pointer flex flex-col items-center justify-center bg-white hover:bg-stone-50"
                     >
                       <span>ATACADO (PACOTE)</span>
-                      <span className="text-[9px] font-medium opacity-80">
+                      <span className="text-[10px] font-medium opacity-80">
                         {formatCurrency(productModal.sale_price * (1 - productModal.package_discount_pct! / 100))} / un
                       </span>
                     </button>
@@ -467,22 +467,77 @@ export default function PdvPage() {
                 </div>
               ) : null}
 
-              {/* Price Details - Editable Input */}
-              <div className="space-y-1.5">
-                <span className="font-bold text-[10px] uppercase text-stone-500">PREÇO UNITÁRIO DE VENDA (R$)</span>
+              {/* Price Details - Editable Input with Quick Discount Buttons */}
+              <div className="space-y-2">
+                <span className="font-bold text-xs uppercase text-stone-600">PREÇO UNITÁRIO DE VENDA</span>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold text-xs">R$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-500 font-black text-base">R$</span>
                   <Input
                     type="number"
                     step="0.01"
                     min="0"
                     value={modalPrice === 0 ? '' : modalPrice}
                     onChange={e => setModalPrice(parseFloat(e.target.value) || 0)}
-                    className="pl-8 h-11 text-xs font-mono font-bold"
+                    className="pl-10 h-14 text-base sm:text-lg font-mono font-black text-stone-900 rounded-xl border-stone-300"
                   />
                 </div>
+                
+                {/* Quick adjustment buttons */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const basePrice = modalMode === 'package'
+                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
+                        : productModal.sale_price;
+                      setModalPrice(parseFloat((basePrice * 0.95).toFixed(2)));
+                    }}
+                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
+                  >
+                    -5%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const basePrice = modalMode === 'package'
+                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
+                        : productModal.sale_price;
+                      setModalPrice(parseFloat((basePrice * 0.90).toFixed(2)));
+                    }}
+                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
+                  >
+                    -10%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalPrice(p => parseFloat(Math.max(0, p - 1).toFixed(2)))}
+                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
+                  >
+                    -R$1
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalPrice(p => parseFloat(Math.max(0, p - 5).toFixed(2)))}
+                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-[10px] sm:text-xs font-bold rounded-lg text-stone-700 cursor-pointer transition active:scale-95"
+                  >
+                    -R$5
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const basePrice = modalMode === 'package'
+                        ? productModal.sale_price * (1 - (productModal.package_discount_pct || 10) / 100)
+                        : productModal.sale_price;
+                      setModalPrice(parseFloat(basePrice.toFixed(2)));
+                    }}
+                    className="ml-auto px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-[10px] sm:text-xs font-bold rounded-lg text-amber-800 cursor-pointer transition active:scale-95"
+                  >
+                    🔄 Restaurar
+                  </button>
+                </div>
+
                 {modalMode === 'package' && (
-                  <div className="flex justify-between items-center text-stone-500 text-[9px] px-1">
+                  <div className="flex justify-between items-center text-stone-500 text-[10px] px-1 pt-1 font-medium">
                     <span>Itens por Pacote:</span>
                     <span className="font-bold">{productModal.package_qty || 10} unidades</span>
                   </div>
@@ -491,26 +546,26 @@ export default function PdvPage() {
 
               {/* Quantity Selector - Large Touch Buttons for Card Terminal */}
               <div className="space-y-1.5">
-                <span className="font-bold text-[10px] uppercase text-stone-500">QUANTIDADE</span>
-                <div className="flex items-center justify-between border border-stone-300 rounded-xl p-2 bg-white">
+                <span className="font-bold text-xs uppercase text-stone-600">QUANTIDADE</span>
+                <div className="flex items-center justify-between border border-stone-300 rounded-xl p-2.5 bg-white">
                   <button
                     type="button"
                     onClick={() => setModalQty(q => Math.max(1, q - 1))}
-                    className="h-12 w-12 rounded-full border border-stone-300 bg-stone-50 hover:bg-stone-100 flex items-center justify-center text-xl font-bold cursor-pointer select-none transition active:scale-95 animate-none"
+                    className="h-14 w-14 rounded-full border border-stone-300 bg-stone-50 hover:bg-stone-100 flex items-center justify-center text-2xl font-bold cursor-pointer select-none transition active:scale-95 animate-none"
                     style={{ color: '#5a4633' }}
                   >
                     -
                   </button>
                   <div className="text-center">
-                    <span className="font-mono font-black text-xl text-stone-900">{modalQty}</span>
-                    <span className="text-[10px] block text-stone-400 font-medium mt-0.5">
+                    <span className="font-mono font-black text-2xl text-stone-900">{modalQty}</span>
+                    <span className="text-[10px] sm:text-xs block text-stone-400 font-medium mt-0.5">
                       {modalMode === 'package' ? 'pacote(s)' : 'unidade(s)'}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setModalQty(q => q + 1)}
-                    className="h-12 w-12 rounded-full border border-stone-300 bg-stone-50 hover:bg-stone-100 flex items-center justify-center text-xl font-bold cursor-pointer select-none transition active:scale-95 animate-none"
+                    className="h-14 w-14 rounded-full border border-stone-300 bg-stone-50 hover:bg-stone-100 flex items-center justify-center text-2xl font-bold cursor-pointer select-none transition active:scale-95 animate-none"
                     style={{ color: '#5a4633' }}
                   >
                     +
@@ -519,9 +574,9 @@ export default function PdvPage() {
               </div>
 
               {/* Real-time Total Price */}
-              <div className="pt-2 flex justify-between items-center border-t border-stone-200">
-                <span className="font-bold text-xs uppercase text-stone-700">VALOR TOTAL DO ITEM:</span>
-                <span className="font-mono font-black text-lg" style={{ color: '#e8590c' }}>
+              <div className="pt-2.5 flex justify-between items-center border-t border-stone-200">
+                <span className="font-bold text-xs sm:text-sm uppercase text-stone-700">VALOR TOTAL DO ITEM:</span>
+                <span className="font-mono font-black text-xl sm:text-2xl" style={{ color: '#e8590c' }}>
                   {formatCurrency(
                     (modalMode === 'package'
                       ? modalPrice * (productModal.package_qty || 10)
@@ -534,7 +589,7 @@ export default function PdvPage() {
               <Button
                 variant="outline"
                 onClick={() => setProductModal(null)}
-                className="h-12 flex-1 text-xs font-bold uppercase rounded-xl border-stone-300 bg-white hover:bg-stone-100 transition active:scale-95 cursor-pointer text-stone-700"
+                className="h-14 flex-1 text-sm font-black uppercase rounded-xl border-stone-300 bg-white hover:bg-stone-100 transition active:scale-95 cursor-pointer text-stone-700"
               >
                 CANCELAR
               </Button>
@@ -542,9 +597,9 @@ export default function PdvPage() {
                 onClick={() => {
                   addToCart(productModal, { mode: modalMode, qty: modalQty, customPrice: modalPrice });
                 }}
-                className="h-12 flex-1 bg-[#e8590c] hover:bg-[#d9480f] text-white font-bold text-xs uppercase rounded-xl shadow-md active:scale-95 transition cursor-pointer"
+                className="h-14 flex-1 bg-[#e8590c] hover:bg-[#d9480f] text-white font-black text-sm uppercase rounded-xl shadow-md active:scale-95 transition cursor-pointer"
               >
-                ADICIONAR AO PDV
+                ADICIONAR
               </Button>
             </div>
           </DialogContent>
