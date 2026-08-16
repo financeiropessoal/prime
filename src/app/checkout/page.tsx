@@ -8,7 +8,6 @@ import { formatCurrency } from '@/lib/formatters';
 import { toast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -20,15 +19,17 @@ import {
   CreditCard,
   QrCode,
   FileText,
-  Truck,
   ArrowRight,
   ArrowLeft,
-  ShoppingBag,
-  Building2,
   Lock,
-  User,
-  MapPin
+  Printer,
+  Bluetooth,
+  RefreshCw,
+  XCircle,
+  X,
+  SkipForward
 } from 'lucide-react';
+import { BluetoothPrinter, BTDevice } from '@/services/bluetooth-printer';
 
 const checkoutFormSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -53,6 +54,24 @@ export default function CheckoutPage() {
   const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+
+  // Print Modal State
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
+  const [isNativeApp, setIsNativeApp] = useState(false);
+  const [printerDevice, setPrinterDevice] = useState<BTDevice | null>(null);
+  const [btDevices, setBtDevices] = useState<BTDevice[]>([]);
+  const [scanning, setScanning] = useState(false);
+  const [connecting, setConnecting] = useState<string | null>(null);
+  const [printing, setPrinting] = useState(false);
+  const [printError, setPrintError] = useState<string | null>(null);
+  const [printDone, setPrintDone] = useState(false);
+
+  useEffect(() => {
+    setIsNativeApp(BluetoothPrinter.isNativeApp());
+    const saved = localStorage.getItem('printer_device');
+    if (saved) { try { setPrinterDevice(JSON.parse(saved)); } catch {} }
+  }, []);
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<any>({
     resolver: zodResolver(checkoutFormSchema),
@@ -130,21 +149,13 @@ export default function CheckoutPage() {
         const unitPrice = item.product.sale_price;
         const finalPrice = isPkg ? unitPrice * (1 - discPct / 100) : unitPrice;
         const effectiveQty = isPkg ? item.quantity * qtyPerPkg : item.quantity;
-
-        return {
-          product_id: item.product.id,
-          quantity: effectiveQty,
-          unit_price: finalPrice
-        };
+        return { product_id: item.product.id, quantity: effectiveQty, unit_price: finalPrice };
       });
 
       const shippingAddress = {
-        street: formData.street,
-        number: formData.number,
-        neighborhood: formData.neighborhood,
-        city: formData.city,
-        state: formData.state,
-        zip_code: formData.zip_code
+        street: formData.street, number: formData.number,
+        neighborhood: formData.neighborhood, city: formData.city,
+        state: formData.state, zip_code: formData.zip_code
       };
 
       const newOrder = await dbService.createOrder({
@@ -158,24 +169,78 @@ export default function CheckoutPage() {
 
       setCreatedOrderId(newOrder.id);
       clearCart();
-      setStep(3);
 
-      toast.add({
-        title: 'Pedido Processado',
-        description: `Pedido #${newOrder.id} gerado com sucesso.`,
-        type: 'success'
+      // Salva dados do pedido e abre modal de impressão
+      setPendingOrderData({
+        orderId: newOrder.id,
+        customerName: formData.name,
+        paymentMethod: paymentMethod.toUpperCase(),
+        items: cart.map(item => {
+          const isPkg = item.purchaseType === 'package';
+          const discPct = item.product.package_discount_pct || 10;
+          const price = isPkg ? item.product.sale_price * (1 - discPct / 100) : item.product.sale_price;
+          return { name: item.product.name, qty: item.quantity, price };
+        }),
+        subtotal: cartTotal,
+        total: cartTotal + 18.90,
       });
+      setShowPrintModal(true);
+
+      toast.add({ title: 'Pedido Processado', description: `Pedido #${newOrder.id} gerado com sucesso.`, type: 'success' });
     } catch (err: any) {
       console.error(err);
-      toast.add({
-        title: 'Falha no Pedido',
-        description: err.message || 'Erro ao comunicar com o servidor de faturamento.',
-        type: 'error'
-      });
+      toast.add({ title: 'Falha no Pedido', description: err.message || 'Erro ao comunicar com o servidor de faturamento.', type: 'error' });
     } finally {
       setProcessing(false);
     }
   };
+
+  // --- Bluetooth handlers (dentro do modal) ---
+  const handleScanBt = async () => {
+    setScanning(true); setPrintError(null);
+    try {
+      const enabled = await BluetoothPrinter.isEnabled();
+      if (!enabled) { setPrintError('Bluetooth desligado. Ligue e tente novamente.'); return; }
+      const found = await BluetoothPrinter.scan();
+      setBtDevices(found);
+      if (found.length === 0) setPrintError('Nenhuma impressora encontrada. Verifique se está ligada e pareada.');
+    } catch (e: any) { setPrintError(e?.message || 'Erro ao buscar dispositivos.'); }
+    finally { setScanning(false); }
+  };
+
+  const handleConnectBt = async (device: BTDevice) => {
+    setConnecting(device.address); setPrintError(null);
+    try {
+      await BluetoothPrinter.connect(device.address);
+      setPrinterDevice(device);
+      localStorage.setItem('printer_device', JSON.stringify(device));
+      setBtDevices([]);
+    } catch (e: any) { setPrintError(`Falha ao conectar: ${e?.message}`); }
+    finally { setConnecting(null); }
+  };
+
+  const handlePrint = async () => {
+    if (!pendingOrderData) return;
+    setPrinting(true); setPrintError(null);
+    try {
+      await BluetoothPrinter.printReceipt({
+        storeName: 'PRIME CHAVES CODIFICADAS',
+        storeAddress: 'www.primechavescodificadas.com.br',
+        orderNumber: pendingOrderData.orderId,
+        items: pendingOrderData.items,
+        subtotal: pendingOrderData.subtotal,
+        total: pendingOrderData.total,
+        paymentMethod: pendingOrderData.paymentMethod,
+        customerName: pendingOrderData.customerName,
+        date: new Date().toLocaleString('pt-BR'),
+      });
+      setPrintDone(true);
+      setTimeout(() => { setShowPrintModal(false); setStep(3); }, 1500);
+    } catch (e: any) { setPrintError(`Erro ao imprimir: ${e?.message}`); }
+    finally { setPrinting(false); }
+  };
+
+  const handleSkipPrint = () => { setShowPrintModal(false); setStep(3); };
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-stone-900 font-sans flex flex-col">
@@ -472,6 +537,146 @@ export default function CheckoutPage() {
           </form>
         )}
       </main>
+
+      {/* ===== MODAL DE IMPRESSÃO BLUETOOTH ===== */}
+      {showPrintModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+
+          {/* Modal Card */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+
+            {/* Header */}
+            <div className="px-5 py-4 flex items-center justify-between border-b" style={{ borderColor: '#e8e2d8', backgroundColor: '#faf8f5' }}>
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg grid place-items-center text-white" style={{ backgroundColor: '#c9a96e' }}>
+                  <Printer className="h-4 w-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-extrabold uppercase tracking-wider" style={{ color: '#3d2b1f' }}>
+                    Imprimir Comprovante
+                  </h2>
+                  <p className="text-[10px]" style={{ color: '#8b7355' }}>
+                    Pedido #{pendingOrderData?.orderId} finalizado
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5 space-y-4">
+
+              {/* Sucesso de impressão */}
+              {printDone ? (
+                <div className="flex flex-col items-center justify-center py-6 gap-3">
+                  <div className="h-14 w-14 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                  </div>
+                  <p className="font-bold text-emerald-700 text-sm">Comprovante impresso com sucesso!</p>
+                  <p className="text-xs text-stone-500">Redirecionando...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Se não é app nativo: aviso */}
+                  {!isNativeApp ? (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center space-y-2">
+                      <Printer className="h-8 w-8 mx-auto text-amber-500" />
+                      <p className="text-xs font-bold text-amber-800">Impressão via Bluetooth</p>
+                      <p className="text-xs text-amber-700">
+                        Para imprimir o comprovante, use o <strong>app Prime Automotive</strong> instalado no celular Android.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Status impressora */}
+                      <div className="flex items-center justify-between px-3 py-2.5 rounded-xl border" style={{ borderColor: '#e8e2d8', backgroundColor: '#faf8f5' }}>
+                        <div className="flex items-center gap-2 text-xs font-bold" style={{ color: '#5a4633' }}>
+                          <Bluetooth className="h-4 w-4" style={{ color: '#c9a96e' }} />
+                          {printerDevice
+                            ? <span className="text-emerald-700">🟢 {printerDevice.name}</span>
+                            : <span className="text-stone-500">Nenhuma impressora conectada</span>
+                          }
+                        </div>
+                        {!printerDevice && (
+                          <button
+                            onClick={handleScanBt}
+                            disabled={scanning}
+                            className="text-xs font-bold flex items-center gap-1"
+                            style={{ color: '#c9a96e' }}
+                          >
+                            {scanning ? <RefreshCw className="h-3 w-3 animate-spin" /> : null}
+                            {scanning ? 'Buscando...' : 'Buscar'}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Lista de dispositivos encontrados */}
+                      {btDevices.length > 0 && !printerDevice && (
+                        <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                          {btDevices.map(device => (
+                            <button
+                              key={device.address}
+                              onClick={() => handleConnectBt(device)}
+                              disabled={!!connecting}
+                              className="w-full flex items-center justify-between px-3 py-2 border rounded-xl hover:bg-stone-50 transition text-left"
+                              style={{ borderColor: '#e8e2d8' }}
+                            >
+                              <div>
+                                <p className="text-xs font-bold" style={{ color: '#3d2b1f' }}>{device.name}</p>
+                                <p className="text-[10px] text-stone-400">{device.address}</p>
+                              </div>
+                              {connecting === device.address
+                                ? <RefreshCw className="h-3.5 w-3.5 animate-spin text-stone-400" />
+                                : <span className="text-xs font-bold" style={{ color: '#c9a96e' }}>Conectar →</span>
+                              }
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Erro */}
+                  {printError && (
+                    <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-3">
+                      <XCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                      <p className="text-xs text-red-700">{printError}</p>
+                    </div>
+                  )}
+
+                  {/* Botões de ação */}
+                  <div className="space-y-2 pt-1">
+                    {/* Botão imprimir */}
+                    {isNativeApp && printerDevice && (
+                      <button
+                        onClick={handlePrint}
+                        disabled={printing}
+                        className="w-full h-12 rounded-full font-bold text-xs uppercase tracking-wider text-white flex items-center justify-center gap-2 shadow-md transition hover:opacity-90 disabled:opacity-60"
+                        style={{ backgroundColor: '#c9a96e' }}
+                      >
+                        {printing
+                          ? <><RefreshCw className="h-4 w-4 animate-spin" /> Imprimindo...</>
+                          : <><Printer className="h-4 w-4" /> Imprimir Comprovante</>
+                        }
+                      </button>
+                    )}
+
+                    {/* Pular impressão */}
+                    <button
+                      onClick={handleSkipPrint}
+                      className="w-full h-10 rounded-full font-bold text-xs uppercase tracking-wider border flex items-center justify-center gap-2 transition hover:bg-stone-50"
+                      style={{ borderColor: '#e8e2d8', color: '#8b7355' }}
+                    >
+                      <SkipForward className="h-3.5 w-3.5" />
+                      Pular — Finalizar sem imprimir
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
