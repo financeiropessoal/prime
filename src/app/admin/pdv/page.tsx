@@ -262,10 +262,10 @@ export default function PdvPage() {
       </div>
 
       {/* Main PDV Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* LEFT CATALOG PANEL (60%) */}
-        <div className={`w-full md:w-3/5 flex flex-col bg-[#f8f9fa] border-r border-stone-300 overflow-hidden ${mobileTab === 'catalog' ? 'flex' : 'hidden md:flex'}`}>
+        <div className={`w-full h-full md:h-3/5 flex flex-col bg-[#f8f9fa] border-b border-stone-300 overflow-hidden ${mobileTab === 'catalog' ? 'flex' : 'hidden md:flex'}`}>
           {/* Search & Categories */}
           <div className="p-3 bg-white border-b border-stone-300 space-y-2">
             <div className="relative">
@@ -330,7 +330,7 @@ export default function PdvPage() {
         </div>
 
         {/* RIGHT CART & CHECKOUT PANEL (40%) */}
-        <div className={`w-full md:w-2/5 flex flex-col bg-white overflow-hidden border-l border-stone-300 ${mobileTab === 'cart' ? 'flex' : 'hidden md:flex'}`}>
+        <div className={`w-full h-full md:h-2/5 flex flex-col bg-white overflow-hidden ${mobileTab === 'cart' ? 'flex' : 'hidden md:flex'}`}>
           {/* Client Selection Bar */}
           <div className="p-3 bg-stone-100 border-b border-stone-300 flex items-center justify-between">
             <div className="flex items-center gap-2">
