@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { dbService } from '@/services/db';
 import { Product, Client, BankAccount } from '@/lib/database.types';
 import { formatCurrency } from '@/lib/formatters';
@@ -254,17 +255,29 @@ export default function PdvPage() {
 
       toast.add({ title: 'Venda Concluída', description: `Pedido #${newOrder.id.slice(-6)} finalizado.`, type: 'success' });
 
+      const oId = newOrder.id.slice(-6);
+      const oCart = [...cart];
+      const oTotal = cartTotal;
+      const oPay = getPayLabel();
+
       // Save for print
-      setLastOrderId(newOrder.id.slice(-6));
-      setLastOrderItems([...cart]);
-      setLastOrderTotal(cartTotal);
-      setLastPayLabel(getPayLabel());
+      setLastOrderId(oId);
+      setLastOrderItems(oCart);
+      setLastOrderTotal(oTotal);
+      setLastPayLabel(oPay);
 
       setCart([]);
       setShowCheckout(false);
       setPrintDone(false);
       setPrintError(null);
       setShowPrintModal(true);
+
+      // Auto-print directly on native POS printer without asking for Bluetooth
+      if (Capacitor.isNativePlatform()) {
+        setTimeout(() => {
+          handlePrint(oId, oCart, oTotal, oPay);
+        }, 300);
+      }
     } catch (e: any) {
       toast.add({ title: 'Erro na Venda', description: e.message || 'Falha ao processar.', type: 'error' });
     }
@@ -319,10 +332,13 @@ export default function PdvPage() {
         date: new Date().toLocaleString('pt-BR'),
       };
 
-      if (isNative && printer) {
+      if (Capacitor.isNativePlatform()) {
         await posPrinter.printReceipt(receiptData);
-      } else {
+      } else if (printer) {
         await BluetoothPrinter.printReceipt(receiptData);
+      } else {
+        setPrintError('Selecione uma impressora Bluetooth ou utilize a impressora nativa do POS.');
+        return;
       }
       setPrintDone(true);
       setTimeout(() => {
@@ -829,10 +845,14 @@ export default function PdvPage() {
                   <div className="rounded-xl border p-4 space-y-3 bg-white" style={{ borderColor: '#e8e2d8' }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-bold" style={{ color: brown }}>
-                        <Bluetooth className="h-5 w-5" style={{ color: gold }} />
-                        {printer ? <span className="text-emerald-700">🟢 {printer.name}</span> : <span className="text-stone-400">Sem impressora</span>}
+                        <Printer className="h-5 w-5" style={{ color: gold }} />
+                        {Capacitor.isNativePlatform()
+                          ? <span className="text-emerald-700">🟢 Impressora POS Nativa</span>
+                          : printer
+                          ? <span className="text-emerald-700">🟢 {printer.name}</span>
+                          : <span className="text-stone-400">Sem impressora</span>}
                       </div>
-                      {!printer && (
+                      {!printer && !Capacitor.isNativePlatform() && (
                         <button onClick={handleScan} disabled={scanning} className="text-xs font-bold flex items-center gap-1" style={{ color: gold }}>
                           {scanning && <RefreshCw className="h-3 w-3 animate-spin" />}
                           {scanning ? 'Buscando...' : 'Buscar'}
@@ -866,7 +886,7 @@ export default function PdvPage() {
                   )}
 
                   <div className="space-y-2">
-                    {printer && (
+                    {(printer || Capacitor.isNativePlatform()) && (
                       <Button onClick={() => handlePrint()} disabled={printing}
                         className="w-full h-12 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
                         style={{ backgroundColor: gold }}>
