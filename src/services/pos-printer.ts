@@ -172,6 +172,12 @@ class PosPrinter {
       }
     }
 
+    // 5. Fallback for Web Browser (Chrome window.print)
+    if (typeof window !== 'undefined' && typeof window.print === 'function') {
+      window.print();
+      return;
+    }
+
     throw new Error('Nenhuma impressora POS embutida encontrada. Abra o aplicativo Prime Q2I.');
   }
 

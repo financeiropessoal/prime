@@ -332,20 +332,56 @@ export default function PdvPage() {
         date: new Date().toLocaleString('pt-BR'),
       };
 
+      // 1. Try Hardware Printer (window.PrimePrinter / sunmiPrinter)
+      if (typeof window !== 'undefined' && ((window as any).PrimePrinter || (window as any).sunmiPrinter)) {
+        await posPrinter.printReceipt(receiptData);
+        setPrintDone(true);
+        setTimeout(() => {
+          setShowPrintModal(false);
+          setPrintDone(false);
+          setSelectedClient(null);
+        }, 2000);
+        return;
+      }
+
+      // 2. Try Native App / Bluetooth Printer
       if (Capacitor.isNativePlatform()) {
         try {
           const dev = await BluetoothPrinter.autoPrintReceipt(receiptData);
           if (dev) setPrinter(dev);
+          setPrintDone(true);
+          setTimeout(() => {
+            setShowPrintModal(false);
+            setPrintDone(false);
+            setSelectedClient(null);
+          }, 2000);
+          return;
         } catch (err: any) {
-          console.warn('Bluetooth autoPrint failed, attempting POS fallback:', err);
           await posPrinter.printReceipt(receiptData);
+          setPrintDone(true);
+          setTimeout(() => {
+            setShowPrintModal(false);
+            setPrintDone(false);
+            setSelectedClient(null);
+          }, 2000);
+          return;
         }
-      } else if (printer) {
+      }
+
+      // 3. Bluetooth printer connected
+      if (printer) {
         await BluetoothPrinter.printReceipt(receiptData);
-      } else {
-        setPrintError('Selecione uma impressora Bluetooth ou pareie a impressora nas Configurações do Android.');
+        setPrintDone(true);
+        setTimeout(() => {
+          setShowPrintModal(false);
+          setPrintDone(false);
+          setSelectedClient(null);
+        }, 2000);
         return;
       }
+
+      // 4. Browser print fallback
+      await posPrinter.printReceipt(receiptData);
       setPrintDone(true);
       setTimeout(() => {
         setShowPrintModal(false);
@@ -859,11 +895,13 @@ export default function PdvPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-bold" style={{ color: brown }}>
                         <Printer className="h-5 w-5" style={{ color: gold }} />
-                        {Capacitor.isNativePlatform()
+                        {typeof window !== 'undefined' && (window as any).PrimePrinter
+                          ? <span className="text-emerald-700">🟢 Impressora Q2I Nativa</span>
+                          : Capacitor.isNativePlatform()
                           ? <span className="text-emerald-700">🟢 Impressora POS Nativa</span>
                           : printer
                           ? <span className="text-emerald-700">🟢 {printer.name}</span>
-                          : <span className="text-stone-400">Sem impressora</span>}
+                          : <span className="text-amber-700 text-xs font-medium">⚠️ Recomendado: Abra o aplicativo Prime Q2I</span>}
                       </div>
                       {!printer && !Capacitor.isNativePlatform() && (
                         <button onClick={handleScan} disabled={scanning} className="text-xs font-bold flex items-center gap-1" style={{ color: gold }}>
@@ -899,13 +937,11 @@ export default function PdvPage() {
                   )}
 
                   <div className="space-y-2">
-                    {(printer || Capacitor.isNativePlatform()) && (
-                      <Button onClick={() => handlePrint()} disabled={printing}
-                        className="w-full h-12 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
-                        style={{ backgroundColor: gold }}>
-                        {printing ? <><RefreshCw className="h-4 w-4 animate-spin" /> Imprimindo...</> : <><Printer className="h-4 w-4" /> Imprimir Comprovante</>}
-                      </Button>
-                    )}
+                    <Button onClick={() => handlePrint()} disabled={printing}
+                      className="w-full h-12 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
+                      style={{ backgroundColor: gold }}>
+                      {printing ? <><RefreshCw className="h-4 w-4 animate-spin" /> Imprimindo...</> : <><Printer className="h-4 w-4" /> Imprimir Comprovante</>}
+                    </Button>
                     <button onClick={closePrintModal}
                       className="w-full py-3 rounded-full font-bold text-xs border flex items-center justify-center gap-2"
                       style={{ borderColor: '#e8e2d8', color: '#8b7355' }}>
