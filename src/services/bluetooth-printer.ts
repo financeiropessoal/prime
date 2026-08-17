@@ -186,15 +186,32 @@ export const BluetoothPrinter = {
       receipt += padLine('PAGAMENTO', data.paymentMethod) + CMD.LINE;
     }
 
-    // PIX Section
+    // PIX Section with native ESC/POS QR Code
+    const pixKey = data.pixKey || 'pix.primeauto@gmail.com';
     receipt += separator + CMD.LINE;
     receipt += CMD.ALIGN_CENTER;
     receipt += CMD.BOLD_ON;
     receipt += '--- PAGAMENTO VIA PIX ---' + CMD.LINE;
     receipt += CMD.BOLD_OFF;
+
+    // ESC/POS Native QR Code Commands
+    try {
+      const storeLen = pixKey.length + 3;
+      const pL = storeLen % 256;
+      const pH = Math.floor(storeLen / 256);
+      receipt += '\x1D(k\x04\x001A2\x00';
+      receipt += '\x1D(k\x03\x001C\x06';
+      receipt += '\x1D(k\x03\x001E0';
+      receipt += `\x1D(k${String.fromCharCode(pL)}${String.fromCharCode(pH)}1P0${pixKey}`;
+      receipt += '\x1D(k\x03\x001Q0';
+      receipt += CMD.LINE;
+    } catch (_) {
+      // Fallback if binary formatting fails
+    }
+
     receipt += 'Chave PIX (E-mail):' + CMD.LINE;
     receipt += CMD.BOLD_ON;
-    receipt += (data.pixKey || 'pix.primeauto@gmail.com') + CMD.LINE;
+    receipt += pixKey + CMD.LINE;
     receipt += CMD.BOLD_OFF;
 
     receipt += separator + CMD.LINE;
