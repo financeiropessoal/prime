@@ -386,26 +386,25 @@ export default function PdvPage() {
 
       {/* ══════ HEADER ══════ */}
       <header className="border-b shrink-0 bg-white" style={{ borderColor: '#e8e2d8' }}>
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Prime" className="h-7 w-auto object-contain" />
-            <span className="font-black text-xs tracking-wider uppercase" style={{ color: darkBrown }}>PDV MÓVEL</span>
+        <div className="px-3 py-2 flex items-center justify-between gap-1.5 overflow-hidden">
+          <div className="flex items-center gap-1.5 min-w-0 shrink">
+            <img src="/logo.png" alt="Prime" className="h-6 w-auto object-contain shrink-0" />
+            <span className="font-black text-[11px] tracking-wider uppercase truncate" style={{ color: darkBrown }}>PDV MÓVEL</span>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Bluetooth indicator */}
+          <div className="flex items-center gap-1.5 shrink-0">
             {isNative && (
               <button onClick={() => { setPrintError(null); setPrintDone(false); setShowPrintModal(true); }}
-                className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full border"
+                className="flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-full border shrink-0"
                 style={{ borderColor: printer ? gold : '#e8e2d8', color: printer ? '#16a34a' : '#8b7355' }}>
-                <Bluetooth className="h-3 w-3" />
-                {printer ? printer.name.slice(0, 10) : 'Impressora'}
+                <Printer className="h-3 w-3 shrink-0" />
+                <span className="hidden sm:inline">{printer ? printer.name.slice(0, 8) : 'Impressora'}</span>
               </button>
             )}
-            <Button onClick={loadData} variant="ghost" size="xs">
+            <button onClick={loadData} className="p-1 rounded-full hover:bg-stone-100 transition shrink-0" title="Atualizar">
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} style={{ color: gold }} />
-            </Button>
-            <div className="px-3 py-1 border rounded-full font-mono text-xs font-bold" style={{ backgroundColor: '#faf8f5', borderColor: gold, color: darkBrown }}>
-              {cartCount} — {formatCurrency(cartTotal)}
+            </button>
+            <div className="px-2.5 py-1 border rounded-full font-mono text-[11px] font-bold shrink-0 whitespace-nowrap" style={{ backgroundColor: '#faf8f5', borderColor: gold, color: darkBrown }}>
+              {cartCount} · {formatCurrency(cartTotal)}
             </div>
           </div>
         </div>

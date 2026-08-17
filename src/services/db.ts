@@ -357,6 +357,15 @@ export const dbService = {
     if (isSupabaseConfigured && supabase) {
       // In Supabase, we would call an RPC to do this transactionally
       // Or we insert order, then items, since triggers handle the stock & receivables
+      const validPaymentMethods = ['pix', 'card', 'boleto', 'faturado'];
+      let pm = (data.payment_method || '').toLowerCase();
+      if (!validPaymentMethods.includes(pm)) {
+        if (pm.includes('dinheiro') || pm.includes('cash')) pm = 'pix';
+        else if (pm.includes('cart') || pm.includes('card') || pm.includes('credito') || pm.includes('debito')) pm = 'card';
+        else if (pm.includes('fat') || pm.includes('prazo')) pm = 'faturado';
+        else pm = 'pix';
+      }
+
       const { data: newOrder, error: oErr } = await supabase
         .from('orders')
         .insert({
@@ -364,7 +373,7 @@ export const dbService = {
           total_amount: data.total_amount,
           shipping_cost: data.shipping_cost,
           shipping_address: data.shipping_address,
-          payment_method: data.payment_method,
+          payment_method: pm,
           status: data.status || 'waiting_payment'
         })
         .select()
