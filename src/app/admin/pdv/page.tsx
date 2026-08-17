@@ -300,40 +300,29 @@ export default function PdvPage() {
 
     setPrinting(true); setPrintError(null);
     try {
+      const receiptData = {
+        storeName: 'PRIME CHAVES CODIFICADAS',
+        storeAddress: 'www.primechavescodificadas.com.br',
+        orderNumber: pOrderId,
+        customerName: selectedClient?.name || undefined,
+        items: pItems.map(item => {
+          const price = item.mode === 'package'
+            ? item.product.sale_price * (1 - (item.product.package_discount_pct || 10) / 100)
+            : item.customUnitPrice;
+          return { name: item.product.name, qty: item.quantity, price };
+        }),
+        subtotal: pTotal,
+        total: pTotal,
+        paymentMethod: pLabel,
+        pixKey: 'pix.primeauto@gmail.com',
+        pixQrUrl: 'https://www.primechavescodificadas.com.br/pix_qr.png',
+        date: new Date().toLocaleString('pt-BR'),
+      };
+
       if (isNative && printer) {
-        await posPrinter.printReceipt({
-          storeName: 'PRIME CHAVES CODIFICADAS',
-          storeAddress: 'www.primechavescodificadas.com.br',
-          orderNumber: pOrderId,
-          customerName: selectedClient?.name,
-          items: pItems.map(item => {
-            const price = item.mode === 'package'
-              ? item.product.sale_price * (1 - (item.product.package_discount_pct || 10) / 100)
-              : item.customUnitPrice;
-            return { name: item.product.name, qty: item.quantity, price };
-          }),
-          subtotal: pTotal,
-          total: pTotal,
-          paymentMethod: pLabel,
-          date: new Date().toLocaleString('pt-BR'),
-        });
+        await posPrinter.printReceipt(receiptData);
       } else {
-        await BluetoothPrinter.printReceipt({
-          storeName: 'PRIME CHAVES CODIFICADAS',
-          storeAddress: 'www.primechavescodificadas.com.br',
-          orderNumber: pOrderId,
-          customerName: selectedClient?.name || undefined,
-          items: pItems.map(item => {
-            const price = item.mode === 'package'
-              ? item.product.sale_price * (1 - (item.product.package_discount_pct || 10) / 100)
-              : item.customUnitPrice;
-            return { name: item.product.name, qty: item.quantity, price };
-          }),
-          subtotal: pTotal,
-          total: pTotal,
-          paymentMethod: pLabel,
-          date: new Date().toLocaleString('pt-BR'),
-        });
+        await BluetoothPrinter.printReceipt(receiptData);
       }
       setPrintDone(true);
       setTimeout(() => {

@@ -39,6 +39,8 @@ export interface ReceiptData {
   paymentMethod?: string;
   customerName?: string;
   date?: string;
+  pixKey?: string;
+  pixQrUrl?: string;
 }
 
 // ESC/POS command helpers
@@ -135,10 +137,10 @@ export const BluetoothPrinter = {
     receipt += CMD.ALIGN_CENTER;
     receipt += CMD.BOLD_ON;
     receipt += CMD.DOUBLE_SIZE;
-    receipt += (data.storeName || 'PRIME AUTOMOTIVE') + CMD.LINE;
+    receipt += (data.storeName || 'PRIME CHAVES CODIFICADAS') + CMD.LINE;
     receipt += CMD.NORMAL_SIZE;
     receipt += CMD.BOLD_OFF;
-    receipt += (data.storeAddress || 'Sistema de Autopeças') + CMD.LINE;
+    receipt += (data.storeAddress || 'www.primechavescodificadas.com.br') + CMD.LINE;
     receipt += CMD.LINE;
     receipt += separator + CMD.LINE;
     receipt += CMD.ALIGN_LEFT;
@@ -184,10 +186,21 @@ export const BluetoothPrinter = {
       receipt += padLine('PAGAMENTO', data.paymentMethod) + CMD.LINE;
     }
 
+    // PIX Section
+    receipt += separator + CMD.LINE;
+    receipt += CMD.ALIGN_CENTER;
+    receipt += CMD.BOLD_ON;
+    receipt += '--- PAGAMENTO VIA PIX ---' + CMD.LINE;
+    receipt += CMD.BOLD_OFF;
+    receipt += 'Chave PIX (E-mail):' + CMD.LINE;
+    receipt += CMD.BOLD_ON;
+    receipt += (data.pixKey || 'pix.primeauto@gmail.com') + CMD.LINE;
+    receipt += CMD.BOLD_OFF;
+
     receipt += separator + CMD.LINE;
     receipt += CMD.ALIGN_CENTER;
     receipt += 'Obrigado pela preferencia!' + CMD.LINE;
-    receipt += 'www.primeautomotive.com.br' + CMD.LINE;
+    receipt += 'www.primechavescodificadas.com.br' + CMD.LINE;
     receipt += CMD.FEED;
     receipt += CMD.CUT;
 
