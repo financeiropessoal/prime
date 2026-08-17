@@ -619,18 +619,25 @@ export default function PdvPage() {
                       {o.payment_method}
                     </span>
                   </div>
-                  {isNative && printer && (
-                    <button onClick={() => {
-                      setLastOrderId(o.id?.slice(-6));
-                      setLastPayLabel(o.payment_method?.toUpperCase() || 'PDV');
-                      setLastOrderTotal(o.total_amount);
-                      setLastOrderItems([]);
-                      setPrintDone(false); setPrintError(null);
-                      setShowPrintModal(true);
-                    }} className="mt-1 flex items-center gap-1 text-[10px] font-bold" style={{ color: gold }}>
-                      <Printer className="h-3 w-3" /> Reimprimir
-                    </button>
-                  )}
+                  <button onClick={() => {
+                    const orderIdStr = o.id?.slice(-6) || 'PDV';
+                    const payStr = o.payment_method?.toUpperCase() || 'PDV';
+                    const totNum = o.total_amount || 0;
+
+                    setLastOrderId(orderIdStr);
+                    setLastPayLabel(payStr);
+                    setLastOrderTotal(totNum);
+                    setLastOrderItems([]);
+                    setPrintDone(false);
+                    setPrintError(null);
+                    setShowPrintModal(true);
+
+                    if (Capacitor.isNativePlatform()) {
+                      setTimeout(() => handlePrint(orderIdStr, [], totNum, payStr), 200);
+                    }
+                  }} className="mt-2 w-full py-2 px-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-black uppercase cursor-pointer hover:bg-amber-50 transition active:scale-98" style={{ borderColor: gold, color: darkBrown, backgroundColor: '#fcf8f2' }}>
+                    <Printer className="h-4 w-4" style={{ color: gold }} /> Reimprimir Comprovante
+                  </button>
                 </div>
               ))}
             </div>
