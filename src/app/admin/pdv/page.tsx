@@ -333,11 +333,17 @@ export default function PdvPage() {
       };
 
       if (Capacitor.isNativePlatform()) {
-        await posPrinter.printReceipt(receiptData);
+        try {
+          const dev = await BluetoothPrinter.autoPrintReceipt(receiptData);
+          if (dev) setPrinter(dev);
+        } catch (err: any) {
+          console.warn('Bluetooth autoPrint failed, attempting POS fallback:', err);
+          await posPrinter.printReceipt(receiptData);
+        }
       } else if (printer) {
         await BluetoothPrinter.printReceipt(receiptData);
       } else {
-        setPrintError('Selecione uma impressora Bluetooth ou utilize a impressora nativa do POS.');
+        setPrintError('Selecione uma impressora Bluetooth ou pareie a impressora nas Configurações do Android.');
         return;
       }
       setPrintDone(true);

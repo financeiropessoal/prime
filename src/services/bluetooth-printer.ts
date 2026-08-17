@@ -232,6 +232,49 @@ export const BluetoothPrinter = {
     });
   },
 
+  /** Tenta conectar automaticamente à impressora pareada e imprimir */
+  async autoPrintReceipt(data: ReceiptData): Promise<BTDevice> {
+    if (!this.isNativeApp()) {
+      throw new Error('Execução fora do app nativo. Use a máquina POS ou celular Android.');
+    }
+
+    const connected = await this.isConnected();
+    if (connected) {
+      await this.printReceipt(data);
+      const saved = localStorage.getItem('printer_device');
+      return saved ? JSON.parse(saved) : { name: 'Impressora Conectada', address: '' };
+    }
+
+    // Try saved device in localStorage
+    const savedStr = localStorage.getItem('printer_device');
+    if (savedStr) {
+      try {
+        const saved: BTDevice = JSON.parse(savedStr);
+        await this.connect(saved.address);
+        await this.printReceipt(data);
+        return saved;
+      } catch (_) {
+        // Saved device failed, try scanning
+      }
+    }
+
+    // Scan paired devices
+    const devices = await this.scan();
+    if (!devices || devices.length === 0) {
+      throw new Error('Nenhuma impressora Bluetooth pareada no aparelho. Vá nas Configurações do Android -> Bluetooth e pareie a impressora.');
+    }
+
+    // Find printer (prefer names matching Printer, InnerPrinter, POS, Thermal, Sunmi, etc. or fallback to first paired device)
+    const target = devices.find(d => 
+      /printer|inner|pos|thermal|sunmi|q2i|pax|gertec|bematech|elgin/i.test(d.name)
+    ) || devices[0];
+
+    await this.connect(target.address);
+    localStorage.setItem('printer_device', JSON.stringify(target));
+    await this.printReceipt(data);
+    return target;
+  },
+
   /** Verifica se está rodando no app nativo (Capacitor) */
   isNativeApp(): boolean {
     return typeof window !== 'undefined' && Capacitor.isNativePlatform();
